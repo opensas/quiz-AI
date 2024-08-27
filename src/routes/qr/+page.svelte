@@ -1,7 +1,7 @@
 <script>
-	import EncuestasQR from './EncuestasQR.svelte';
+	import QR from './QR.svelte';
 </script>
 
 <div class="flex h-screen items-center justify-center">
-	<EncuestasQR />
+	<QR />
 </div>
