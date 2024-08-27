@@ -1,0 +1,45 @@
+# see: https://platform.openai.com/api-keys
+
+# chat-01-test02-key
+@api_key = {{$dotenv OPEN_AI_API_KEY}}
+
+@model = gpt-4o-mini
+
+@api_url = https://api.openai.com/v1/chat/completions
+
+###
+POST {{api_url}}
+Authorization: Bearer {{api_key}}
+Content-Type: application/json
+
+{
+  "model": "{{model}}",
+  "messages": [
+    {
+      "role": "system",
+      "content": [
+        {
+          "type": "text",
+          "text": "Responde con un JSON con esta estructura de TypeScript. Los 'title' no pueden tener más de 50 palabras. Los 'options' no pueden tener más de 10 palabras.\n{\n  title: string // título del quiz\n  difficulty: 'easy' | 'normal' | 'hard'\n  questions: [\n    { title: string // texto de la pregunta\n      options: string[]\n      answer: string\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "creá un cuestionario sobre 'un tema a tu elección', con '4' preguntas, dificultad 'media'"
+        }
+      ]
+    }
+  ],
+  "temperature": 1,
+  "max_tokens": 1192,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "response_format": {
+    "type": "text"
+  }
+}

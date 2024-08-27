@@ -1,0 +1,32 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../chat-01"
+		}
+	],
+	"settings": {
+		"cSpell.words": [
+			"backported",
+			"clsx",
+			"codigo",
+			"Contanos",
+			"cuit",
+			"cuits",
+			"descripcion",
+			"digito",
+			"Escaneá",
+			"lucide",
+			"onsave",
+			"opcion",
+			"preg",
+			"puntaje",
+			"shadcn",
+			"tailwindcss",
+			"titulos",
+			"unica"
+		]
+	}
+}
