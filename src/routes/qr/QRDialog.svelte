@@ -4,7 +4,7 @@
 
 	import { QrCode } from 'lucide-svelte';
 
-	import EncuestasQr from './EncuestasQR.svelte';
+	import AppQr from './QR.svelte';
 </script>
 
 <Dialog.Root>
@@ -19,11 +19,11 @@
 			<Dialog.Title>Escaneá el código QR</Dialog.Title>
 			<Dialog.Description class="text-nowrap">
 				Escaneá para navegar a
-				<a href="https://encuestas-online.vercel.app">encuestas-online.vercel.app</a>
+				<a href="https://quiz-ai-demo.vercel.app">quiz-ai-demo.vercel.app</a>
 			</Dialog.Description>
 		</Dialog.Header>
 		<div class="grid gap-4 self-center justify-self-center py-4">
-			<EncuestasQr />
+			<AppQr />
 		</div>
 		<Dialog.Close class="place-self-end self-end">
 			<Button type="submit">Cerrar</Button>
