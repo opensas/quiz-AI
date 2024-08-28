@@ -5,7 +5,7 @@
 </script>
 
 <Dialog.Root closeOnEscape={false} closeOnOutsideClick={false} {open}>
-	<Dialog.Content>
+	<Dialog.Content hideCloseButton>
 		<Dialog.Header>
 			<Dialog.Title>Generando preguntas</Dialog.Title>
 			<Dialog.Description class="text-nowrap">Esto puede tardar un rato...</Dialog.Description>
