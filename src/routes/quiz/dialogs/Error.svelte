@@ -26,8 +26,8 @@
 			title="IA generando preguntas"
 			width="640"
 		/>
-		<Dialog.Close class="place-self-end self-end">
-			<Button type="submit" onclick={onclose}>Volver a intentar</Button>
+		<Dialog.Close>
+			<Button class="w-full" type="submit" onclick={onclose}>Volver a intentar</Button>
 		</Dialog.Close>
 	</Dialog.Content>
 </Dialog.Root>
