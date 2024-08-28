@@ -1,7 +1,7 @@
 # see: https://platform.openai.com/api-keys
 
 # chat-01-test02-key
-@api_key = {{$dotenv OPEN_AI_API_KEY}}
+@api_key = {{$dotenv OPENAI_KEY}}
 
 @model = gpt-4o-mini
 
@@ -34,6 +34,60 @@ Content-Type: application/json
       ]
     }
   ],
+  "temperature": 1,
+  "max_tokens": 1192,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "response_format": {
+    "type": "text"
+  }
+}
+
+###
+
+###
+POST {{api_url}}
+Authorization: Bearer {{api_key}}
+Content-Type: application/json
+
+{
+  "model": "{{model}}",
+  "messages": [
+    {
+      "role": "system",
+      "content": "Responde con un JSON con esta estructura de TypeScript. Los 'title' no pueden tener más de 50 palabras. Los 'options' no pueden tener más de 10 palabras.\n{\n  title: string // título del quiz\n  difficulty: 'easy' | 'normal' | 'hard'\n  questions: [\n    { title: string // texto de la pregunta\n      options: string[]\n      answer: string\n    }\n  ]\n}"
+    },
+    {
+      "role": "user",
+      "content": "creá un cuestionario sobre 'un tema a tu elección', con '4' preguntas, dificultad 'media'"
+    }
+  ],
+  "stream": false,
+  "temperature": 1,
+  "max_tokens": 1192,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "response_format": {
+    "type": "text"
+  }
+}
+
+###
+POST {{api_url}}
+Authorization: Bearer {{api_key}}
+Content-Type: application/json
+
+{
+  "model": "{{model}}",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Las 3 mejores ciudades del mundo para visitar, solo la lista"
+    }
+  ],
+  "stream": false,
   "temperature": 1,
   "max_tokens": 1192,
   "top_p": 1,
