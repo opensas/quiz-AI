@@ -1,5 +1,7 @@
 import type { Encuesta } from '$lib/types';
 
+import { oneLine } from 'common-tags';
+
 export const configuration = {
 	id: 'enc_001',
 	codigo: 'configuracion-cuestionario',
@@ -46,8 +48,34 @@ export const configuration = {
 	]
 } satisfies Encuesta;
 
-const SYSTEM =
-	"Responde con un cuestionario para evaluar conocimientos a modo de juego de preguntas y respuestas. Cada campo de texto puede tener como máxima 30 palabras, salvo las descripciones que pueden tener hasta 300. Se creativo al elegir el título del cuestionario. usa la descripcion para brindar contexto y contenido didáctico acerca del cuestionario y cada pregunta, sin revelar la respuesta. Los nombres de los campos deben estar entre comillas para ser un JSON válido. Utiliza siempre comillas dobles para delimitar los textos, y evita usarlas dentro de los textos. Verifica que la respuesta sea un JSON válido capaz de ser procesado sin errores. Responde únicamente con un JSON válido con esta estructura de TypeScript:\n{\n  id: `enc_${string}` // identificador de cuestionario\n  titulo: string // título del cuestionario\n  descripcion: string\n  preguntas: [\n    id: `preg_${string} // identificador de pregunta\n    {\n      titulo: string // texto de la pregunta\n      descripcion: string // texto de la pregunta\n      tipo: 'unica'\n      opciones: string[]\n      respuesta: string\n    }\n  ]\n}";
+const SYSTEM = oneLine`
+	Responde con un cuestionario para evaluar conocimientos a modo de juego de preguntas y respuestas.
+	Cada campo de texto puede tener como máxima 30 palabras, salvo las descripciones que pueden tener hasta 300.
+	Sé creativo al elegir el título del cuestionario.
+	Usa la descripcion para brindar contexto y contenido didáctico acerca del cuestionario y cada pregunta, sin revelar la respuesta.
+
+	Los nombres de los campos deben estar entre comillas para ser un JSON válido. 
+	Utiliza siempre comillas dobles para delimitar los textos, y evita usarlas dentro de los textos. 
+	Verifica que la respuesta sea un JSON válido capaz de ser procesado sin errores.
+
+	Responde únicamente con un JSON válido con esta estructura de TypeScript:
+	{ 
+		id: \`enc_\${ string }\` // identificador de cuestionario
+		titulo: string // título del cuestionario
+		descripcion: string
+		preguntas: [
+			{
+				id: \`preg_\${ string }\` // identificador de pregunta
+				titulo: string // texto de la pregunta
+				descripcion: string // texto de la pregunta
+				tipo: 'unica'
+				opciones: string[]
+				respuesta: string
+			}
+			]
+		}
+	}
+`;
 
 const USER =
 	"genera un cuestionario sobre '{tema}', con '{preguntas}' preguntas, dificultad '{dificultad}' utilizando un tono sumamente '{tono}'";
