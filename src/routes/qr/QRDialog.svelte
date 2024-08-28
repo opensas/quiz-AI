@@ -4,7 +4,7 @@
 
 	import { QrCode } from 'lucide-svelte';
 
-	import AppQr from './QR.svelte';
+	import QR from './QR.svelte';
 </script>
 
 <Dialog.Root>
@@ -23,7 +23,7 @@
 			</Dialog.Description>
 		</Dialog.Header>
 		<div class="grid gap-4 self-center justify-self-center py-4">
-			<AppQr />
+			<QR />
 		</div>
 		<Dialog.Close class="place-self-end self-end">
 			<Button type="submit">Cerrar</Button>
