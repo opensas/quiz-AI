@@ -14,10 +14,10 @@
 
 	async function createCuestionario() {
 		const resp = configuration.preguntas.map((p) => p.respuesta);
-		const [tema, preguntas, dificultad] = resp;
+		const [tema, preguntas, tono, dificultad] = resp;
 
 		status = 'generate';
-		encuesta = await generateCuestionario(tema, preguntas, dificultad);
+		encuesta = await generateCuestionario(tema, preguntas, tono, dificultad);
 
 		respuestas = encuesta.preguntas.map((p) => p.respuesta?.toString() || '');
 		for (const pregunta of encuesta.preguntas) pregunta.respuesta = undefined;
