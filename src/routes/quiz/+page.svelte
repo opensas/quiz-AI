@@ -11,8 +11,6 @@
 	let status = $state<Status>('configure');
 	let encuesta = $state<EncuestaType>();
 
-	let respuestas: string[] = [];
-
 	const RETRIES = 2;
 
 	async function createCuestionario() {
@@ -25,10 +23,6 @@
 		while (attempt <= RETRIES) {
 			try {
 				encuesta = await generateCuestionario(tema, preguntas, tono, dificultad);
-
-				respuestas = encuesta.preguntas.map((p) => p.respuesta?.toString() || '');
-				for (const pregunta of encuesta.preguntas) pregunta.respuesta = undefined;
-
 				status = 'play';
 				return;
 			} catch (e) {
@@ -42,10 +36,7 @@
 	function showResult() {
 		if (!encuesta) return;
 
-		let correctas = 0;
-		for (const [index, value] of encuesta.preguntas.entries()) {
-			if (value.respuesta === respuestas[index]) correctas++;
-		}
+		const correctas = encuesta.preguntas.filter((p) => p.respuesta === p.solucion).length;
 
 		const porcentaje = (correctas / encuesta.preguntas.length) * 100;
 
@@ -63,8 +54,10 @@
 			`${message.head}\n\n Acertaste ${correctas} de ${encuesta.preguntas.length} preguntas, ` +
 			`eso es un ${porcentaje.toFixed(2)}% de aciertos.\n\n ${message.foot}`;
 
-		const respondidas = encuesta.preguntas.map((p) => p.respuesta);
-		console.log({ respuestas, respondidas });
+		const resultados = encuesta.preguntas.map(({ titulo: p, solucion: s, respuesta: r }) => {
+			return `${p}: ${s} ` + (s === r ? '✅' : `❌ => ${r}`);
+		});
+		console.log({ resultados });
 
 		alert(text);
 

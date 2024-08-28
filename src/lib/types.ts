@@ -19,6 +19,7 @@ export type Pregunta = {
 	id: `preg_${string}`;
 	titulo: string;
 	descripcion?: string;
+	solucion?: Pregunta['respuesta'];
 	// tipo: TipoPregunta; // 'unica' | 'multiple' | 'puntaje' | 'libre'
 } & (
 	| {

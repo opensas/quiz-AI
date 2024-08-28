@@ -28,7 +28,7 @@ export const configuration = {
 			id: 'preg_002',
 			titulo: '¿Cuántas preguntas querés responder',
 			tipo: 'unica',
-			respuesta: '3',
+			respuesta: '5',
 			opciones: ['3', '4', '5']
 		},
 		{
@@ -70,7 +70,7 @@ const SYSTEM = oneLine`
 				descripcion: string // texto de la pregunta
 				tipo: 'unica'
 				opciones: string[]
-				respuesta: string
+				solucion: string // respuesta correcta
 			}
 			]
 		}
