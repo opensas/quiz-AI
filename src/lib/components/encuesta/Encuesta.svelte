@@ -6,6 +6,8 @@
 
 	import { cn } from '$lib/utils';
 
+	import Confetti from './Confetti.svelte';
+	// import { Confetti } from 'svelte-confetti';
 	import { Libre, Multiple, Puntaje, Unica } from './preguntas';
 
 	type Props = {
@@ -22,9 +24,40 @@
 	function onupdate(respuesta: Encuesta['preguntas'][number]['respuesta']) {
 		pregunta.respuesta = respuesta;
 	}
+
+	let status: 'contestando' | 'vacio' | 'correcta' | 'incorrecta' | 'desconocido' =
+		$state('contestando');
+
+	function answer() {
+		const { solucion, respuesta } = pregunta;
+
+		if (!respuesta) {
+			status = 'vacio';
+			setTimeout(() => (status = 'contestando'), 1300);
+			return;
+		}
+
+		status = !solucion ? 'desconocido' : solucion === respuesta ? 'correcta' : 'incorrecta';
+		if (isLast) onsave(encuesta);
+
+		// no animation
+		if (status === 'desconocido') {
+			status = 'contestando';
+			current++;
+		}
+		// wait for animation to finish
+		if (status === 'correcta' || status === 'incorrecta') {
+			setTimeout(() => ((status = 'contestando'), current++), 1300);
+		}
+	}
+
+	const isLast = $derived(current === encuesta.preguntas.length - 1);
 </script>
 
-<div class={cn('rounded-[0.5rem] bg-background sm:border sm:shadow-xl', className)}>
+<div
+	class={cn('rounded-[0.5rem] bg-background sm:border sm:shadow-xl', className)}
+	class:animate-shake={status === 'vacio' || status === 'incorrecta'}
+>
 	<div class="space-y-6 p-6 sm:p-10 md:block">
 		<div class="space-y-1">
 			<h2 class="text-2xl font-bold tracking-tight">{encuesta.titulo}</h2>
@@ -59,11 +92,9 @@
 			<Button class={current <= 0 ? 'invisible' : ''} variant="outline" on:click={() => current--}>
 				Anterior
 			</Button>
-			{#if current < encuesta.preguntas.length - 1}
-				<Button on:click={() => current++}>Siguiente</Button>
-			{:else}
-				<Button on:click={() => onsave(encuesta)}>Finalizar</Button>
-			{/if}
+			<Button on:click={answer}>{isLast ? 'Finalizar' : 'Siguiente'}</Button>
 		</div>
 	</div>
 </div>
+
+<Confetti show={status === 'correcta'} />

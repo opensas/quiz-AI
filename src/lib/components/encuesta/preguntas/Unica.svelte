@@ -65,26 +65,3 @@
 		</div>
 	{/if}
 </Radio.Root>
-
-<!-- 
-{#each opciones as { titulo, descripcion }, index}
-	{@const id = `opcion_${index}`}
-	<div class="flex items-center space-x-3">
-		<Checkbox {id} bind:checked={checked[index]} class="self-start" />
-		<Label for={id} class="flex flex-col space-y-1">
-			<div>{titulo}</div>
-			{#if descripcion}
-				<div class="text-xs font-normal text-muted-foreground">{descripcion}</div>
-			{/if}
-		</Label>
-	</div>
-{/each}
-
-{#if pregunta.acepta_otros}
-	<div class="flex items-center space-x-3">
-		<Checkbox id="opcion_otra" bind:checked={checkedOther} class="--self-start" />
-		<div class="w-full space-y-1">
-			<Input placeholder="otra opción" bind:value={other} --disabled />
-		</div>
-	</div>
-{/if} -->
