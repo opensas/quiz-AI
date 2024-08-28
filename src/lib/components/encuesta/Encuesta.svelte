@@ -19,8 +19,6 @@
 	function onupdate(respuesta: Encuesta['preguntas'][number]['respuesta']) {
 		pregunta.respuesta = respuesta;
 	}
-
-	$inspect({ respuesta: pregunta.respuesta });
 </script>
 
 <div class="rounded-[0.5rem] bg-background sm:border sm:shadow-xl">

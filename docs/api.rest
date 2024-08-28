@@ -97,3 +97,29 @@ Content-Type: application/json
     "type": "text"
   }
 }
+
+###
+POST http://localhost:3000/api/generate
+Content-Type: application/json
+
+{
+  "system": "retorná unicamente un json con el nombre, poblacion y superficie en km2 segun este esquema de typescript:\n[{ nombre: string, poblacion: number, superficie: number }\n]",
+  "user": "Las 3 mejores ciudades de Argentina"
+}
+
+###
+POST http://localhost:3000/api/generate
+Content-Type: application/json
+
+{
+  "system": "retorná unicamente solo la lista con las 3 mejores ciudades de argentina",
+  "user": "Las 3 mejores ciudades de Argentina para visitar, solo la lista"
+}
+
+###
+POST http://localhost:3000/api/generate
+Content-Type: application/json
+
+{
+  "user": "Las 3 mejores ciudades del mundo para visitar, solo la lista"
+}
