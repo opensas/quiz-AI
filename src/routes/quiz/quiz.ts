@@ -3,7 +3,7 @@ import type { Encuesta } from '$lib/types';
 export const configuration = {
 	id: 'enc_001',
 	codigo: 'configuracion-cuestionario',
-	titulo: 'QUIZ-AI: Carrera de mentes + Inteligencia Artificial ',
+	titulo: 'QUIZ-AI: Formularios generados mediante Inteligencia Artificial ',
 	descripcion:
 		'Mediante el uso de IA vamos a generar una serie de preguntas para poner a prueba tus conocimientos',
 	preguntas: [

@@ -24,7 +24,7 @@
 <div class="rounded-[0.5rem] bg-background sm:border sm:shadow-xl">
 	<div class="space-y-6 p-6 sm:p-10 md:block">
 		<div class="space-y-1">
-			<h2 class="text-2xl font-bold tracking-tight">{encuesta.titulo} (v5)</h2>
+			<h2 class="text-2xl font-bold tracking-tight">{encuesta.titulo}</h2>
 			{#if encuesta.descripcion}
 				<p class="text-muted-foreground">{encuesta.descripcion}</p>
 			{/if}
