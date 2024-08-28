@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { type Encuesta as EncuestaType } from '$lib/types';
+
 	import { Encuesta } from '$lib/components/encuesta';
 
-	const configuration: import('$lib/types').Encuesta = {
+	const configuration = {
 		id: 'enc_001',
 		codigo: 'configuracion-cuestionario',
 		titulo: 'QUIZ-AI: Carrera de mentes + Inteligencia Artificial ',
@@ -20,8 +22,7 @@
 					'Películas',
 					'Ciencia Ficción y Fantasía'
 				],
-				// respuesta: '¡Sorprendeme! (deja que la IA elija un tema)',
-				respuesta: 'Películas',
+				respuesta: '¡Sorprendeme! (deja que la IA elija un tema)',
 				acepta_otros: true
 			},
 			{
@@ -39,18 +40,16 @@
 				opciones: ['Fácil', 'Normal', 'Difícil']
 			}
 		]
-	};
+	} satisfies EncuestaType;
 
-	function onsave(encuesta: import('$lib/types').Encuesta) {
-		console.log('!encuesta saved!', { encuesta });
-		const LF = '\r\n\r\n';
-		const respuestas = encuesta.preguntas
-			.map((p) => `${p.titulo}: ${(p.respuesta || '').toString()}`)
-			.join(LF);
-		alert(`Felicitaciones! completaste la encuesta.${LF}${respuestas}`);
+	function createEncuesta() {
+		const tema = configuration.preguntas[0].respuesta;
+		const preguntas = configuration.preguntas[1].respuesta;
+		const dificultad = configuration.preguntas[2].respuesta;
+		console.log({ tema, preguntas, dificultad });
 	}
 </script>
 
 <div class="flex h-screen items-center justify-center px-2 sm:px-10">
-	<Encuesta encuesta={configuration} {onsave} />
+	<Encuesta encuesta={configuration} onsave={createEncuesta} />
 </div>
