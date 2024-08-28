@@ -1,5 +1,5 @@
 <script>
-	import { Generate } from '../dialogs';
+	import { Generate } from '..';
 
 	// page to test how the generating dialog looks like
 </script>

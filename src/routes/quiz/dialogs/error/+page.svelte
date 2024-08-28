@@ -1,5 +1,5 @@
 <script>
-	import { Error } from '../dialogs';
+	import { Error } from '..';
 	// page to test how the generating dialog looks like
 </script>
 
