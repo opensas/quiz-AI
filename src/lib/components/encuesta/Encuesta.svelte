@@ -41,16 +41,18 @@
 			{/if}
 		</div>
 
-		{#if pregunta.tipo === 'multiple'}
-			<Multiple {pregunta} {onupdate} />
-		{:else if pregunta.tipo === 'unica'}
-			<Unica {pregunta} {onupdate} />
-		{:else if pregunta.tipo === 'puntaje'}
-			<Puntaje {pregunta} {onupdate} />
-		{:else if pregunta.tipo === 'libre'}
-			<!-- <Libre bind:respuesta={pregunta.respuesta} {pregunta} /> -->
-			<Libre {pregunta} {onupdate} />
-		{/if}
+		<!-- warning: DO NOT REMOVE THIS #key: option is not being reinitialized if component is not recreated! -->
+		{#key pregunta.id}
+			{#if pregunta.tipo === 'multiple'}
+				<Multiple {pregunta} {onupdate} />
+			{:else if pregunta.tipo === 'unica'}
+				<Unica {pregunta} {onupdate} />
+			{:else if pregunta.tipo === 'puntaje'}
+				<Puntaje {pregunta} {onupdate} />
+			{:else if pregunta.tipo === 'libre'}
+				<Libre {pregunta} {onupdate} />
+			{/if}
+		{/key}
 
 		<div class="flex justify-between pt-4">
 			<Button class={current <= 0 ? 'invisible' : ''} variant="outline" on:click={() => current--}>
