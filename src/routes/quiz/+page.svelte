@@ -60,8 +60,8 @@
 
 <div class="flex h-screen items-center justify-center px-2 sm:px-10">
 	{#if status === 'configure'}
-		<Encuesta encuesta={configuration} onsave={createCuestionario} />
+		<Encuesta class="lg:max-w-5xl" encuesta={configuration} onsave={createCuestionario} />
 	{:else if status === 'play' && encuesta}
-		<Encuesta {encuesta} onsave={showResult} />
+		<Encuesta class="lg:max-w-5xl" {encuesta} onsave={showResult} />
 	{/if}
 </div>

@@ -4,14 +4,17 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
 
+	import { cn } from '$lib/utils';
+
 	import { Libre, Multiple, Puntaje, Unica } from './preguntas';
 
 	type Props = {
 		encuesta: Encuesta;
 		onsave: (encuesta: Encuesta) => void;
+		class?: string;
 	};
 
-	let { encuesta = $bindable(), onsave = () => {} }: Props = $props();
+	let { encuesta = $bindable(), onsave = () => {}, class: className = '' }: Props = $props();
 
 	let current = $state(0);
 	let pregunta = $derived(encuesta.preguntas[current]);
@@ -21,7 +24,7 @@
 	}
 </script>
 
-<div class="rounded-[0.5rem] bg-background sm:border sm:shadow-xl">
+<div class={cn('rounded-[0.5rem] bg-background sm:border sm:shadow-xl', className)}>
 	<div class="space-y-6 p-6 sm:p-10 md:block">
 		<div class="space-y-1">
 			<h2 class="text-2xl font-bold tracking-tight">{encuesta.titulo}</h2>
