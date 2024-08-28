@@ -3,6 +3,7 @@
 
 	import { Encuesta } from '$lib/components/encuesta';
 
+	import Generating from './Generating.svelte';
 	import { configuration, generateCuestionario } from './quiz';
 
 	type Status = 'configure' | 'generate' | 'play' | 'result';
@@ -61,6 +62,8 @@
 <div class="flex h-screen items-center justify-center px-2 sm:px-10">
 	{#if status === 'configure'}
 		<Encuesta class="lg:max-w-5xl" encuesta={configuration} onsave={createCuestionario} />
+	{:else if status === 'generate'}
+		<Generating />
 	{:else if status === 'play' && encuesta}
 		<Encuesta class="lg:max-w-5xl" {encuesta} onsave={showResult} />
 	{/if}
