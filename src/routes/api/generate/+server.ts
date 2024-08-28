@@ -14,8 +14,7 @@ export const POST = async ({ request }) => {
 		const model = data?.model || AI_DEFAULT_MODEL;
 
 		const system = data?.system || '';
-		// const user = data?.system || ''
-		const user = data?.system || 'Las 3 mejores ciudades del mundo para visitar, solo la lista';
+		const user = data?.system || '';
 
 		if (!system && !user) throw new Error('No system not user specified');
 
@@ -39,6 +38,7 @@ export const POST = async ({ request }) => {
 				presence_penalty: 0,
 				response_format: { type: 'text' }
 			});
+			// console.log('!!!', { body });
 
 			const response = await fetch(OPENAI_URL, {
 				headers: {
@@ -55,19 +55,15 @@ export const POST = async ({ request }) => {
 				throw new Error('Failed to create completion', err);
 			}
 
-			console.log('!!!', { provider, model, system, user });
-			console.log('!!!', { body: response.body });
-
 			// 'Content-Type': 'text/event-stream'
 			return new Response(response.body, {
-				headers: {
-					'Content-Type': 'application/json'
-				}
+				headers: { 'Content-Type': 'application/json' }
 			});
 		}
 
 		if (provider === 'ollama') {
 			if (!OLLAMA_URL) throw new Error('OLLAMA_URL env var not set');
+			// #TODO - ollama support
 		}
 	} catch (err) {
 		console.error(err);

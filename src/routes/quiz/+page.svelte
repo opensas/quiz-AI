@@ -3,53 +3,65 @@
 
 	import { Encuesta } from '$lib/components/encuesta';
 
-	const configuration = {
-		id: 'enc_001',
-		codigo: 'configuracion-cuestionario',
-		titulo: 'QUIZ-AI: Carrera de mentes + Inteligencia Artificial ',
-		descripcion:
-			'Mediante el uso de IA vamos a generar una serie de preguntas para poner a prueba tus conocimientos',
-		preguntas: [
-			{
-				id: 'preg_001',
-				titulo: '¿Sobre qué tema querés responder?',
-				tipo: 'unica',
-				opciones: [
-					'¡Sorprendeme! (deja que la IA elija un tema)',
-					'Literatura argentina',
-					'Historia universal',
-					'Ciencia y tecnología',
-					'Películas',
-					'Ciencia Ficción y Fantasía'
-				],
-				respuesta: '¡Sorprendeme! (deja que la IA elija un tema)',
-				acepta_otros: true
-			},
-			{
-				id: 'preg_002',
-				titulo: '¿Cuántas preguntas querés responder',
-				tipo: 'unica',
-				respuesta: '3',
-				opciones: ['3', '4', '5']
-			},
-			{
-				id: 'preg_003',
-				titulo: '¿Qué nivel de dificultad te animás a enfrentar?',
-				tipo: 'unica',
-				respuesta: 'Normal',
-				opciones: ['Fácil', 'Normal', 'Difícil']
-			}
-		]
-	} satisfies EncuestaType;
+	import { configuration, generateCuestionario } from './quiz';
 
-	function createEncuesta() {
-		const tema = configuration.preguntas[0].respuesta;
-		const preguntas = configuration.preguntas[1].respuesta;
-		const dificultad = configuration.preguntas[2].respuesta;
-		console.log({ tema, preguntas, dificultad });
+	type Status = 'configure' | 'generate' | 'play' | 'result';
+
+	let status = $state<Status>('configure');
+	let encuesta = $state<EncuestaType>();
+
+	let respuestas: string[] = [];
+
+	async function createCuestionario() {
+		const resp = configuration.preguntas.map((p) => p.respuesta);
+		const [tema, preguntas, dificultad] = resp;
+
+		status = 'generate';
+		encuesta = await generateCuestionario(tema, preguntas, dificultad);
+
+		respuestas = encuesta.preguntas.map((p) => p.respuesta?.toString() || '');
+		for (const pregunta of encuesta.preguntas) pregunta.respuesta = undefined;
+
+		status = 'play';
+	}
+
+	function showResult() {
+		if (!encuesta) return;
+
+		let correctas = 0;
+		for (const [index, value] of encuesta.preguntas.entries()) {
+			if (value.respuesta === respuestas[index]) correctas++;
+		}
+
+		const porcentaje = (correctas / encuesta.preguntas.length) * 100;
+
+		let message = { head: 'Felicitaciones', foot: 'Hasta pronto' };
+
+		if (porcentaje <= 20) message = { head: 'Ouch', foot: 'Seguramente la próxima te irá mejor' };
+		else if (porcentaje <= 40)
+			message = { head: 'Pasable', foot: 'Tampoco es para ponerse orgulloso...' };
+		else if (porcentaje <= 60) message = { head: 'Felicitaciones', foot: 'Buen desempeño' };
+		else if (porcentaje <= 90) message = { head: 'Notable!', foot: 'Excelente puntaje' };
+		else if (porcentaje > 90)
+			message = { head: 'Puntaje perfecto!', foot: 'Dominás ampliamente estos juegos' };
+
+		const text =
+			`${message.head}\n\n Acertaste ${correctas} de ${encuesta.preguntas.length} preguntas, ` +
+			`eso es un ${porcentaje.toFixed(2)}% de aciertos.\n\n ${message.foot}`;
+
+		const respondidas = encuesta.preguntas.map((p) => p.respuesta);
+		console.log({ respuestas, respondidas });
+
+		alert(text);
+
+		status = 'configure';
 	}
 </script>
 
 <div class="flex h-screen items-center justify-center px-2 sm:px-10">
-	<Encuesta encuesta={configuration} onsave={createEncuesta} />
+	{#if status === 'configure'}
+		<Encuesta encuesta={configuration} onsave={createCuestionario} />
+	{:else if status === 'play' && encuesta}
+		<Encuesta {encuesta} onsave={showResult} />
+	{/if}
 </div>
