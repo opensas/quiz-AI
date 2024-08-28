@@ -6,7 +6,7 @@ test('home page has expected h2', async ({ page }) => {
 	// titulo
 	const titulo = page.locator('h2');
 	await expect(titulo).toBeVisible();
-	await expect(titulo).toContainText(/^Evaluación de la experiencia/);
+	await expect(titulo).toContainText(/^QUIZ-AI/);
 });
 
 test('previous button is not visible on first question', async ({ page }) => {
