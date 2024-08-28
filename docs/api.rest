@@ -17,23 +17,14 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": [
-        {
-          "type": "text",
-          "text": "Responde con un JSON con esta estructura de TypeScript. Los 'title' no pueden tener más de 50 palabras. Los 'options' no pueden tener más de 10 palabras.\n{\n  title: string // título del quiz\n  difficulty: 'easy' | 'normal' | 'hard'\n  questions: [\n    { title: string // texto de la pregunta\n      options: string[]\n      answer: string\n    }\n  ]\n}"
-        }
-      ]
+      "content": "Responde con un cuestionario para evaluar conocimientos a modo de juego de preguntas y respuestas. Cada campo de texto puede tener como máxima 30 palabras, salvo las descripciones que pueden tener hasta 300. Se creativo al elegir el título del cuestionario. usa la descripcion para brindar contexto y contenido didáctico acerca del cuestionario y cada pregunta, sin revelar la respuesta. Responde únicamente con un JSON con esta estructura de TypeScript:\n{\n  id: `enc_${string}` // identificador de cuestionario\n  titulo: string // título del cuestionario\n  descripcion: string\n  preguntas: [\n    id: `preg_${string} // identificador de pregunta\n    {\n      titulo: string // texto de la pregunta\n      descripcion: string // texto de la pregunta\n      tipo: 'unica'\n      opciones: string[]\n      respuesta: string\n    }\n  ]\n}"
     },
     {
       "role": "user",
-      "content": [
-        {
-          "type": "text",
-          "text": "creá un cuestionario sobre 'un tema a tu elección', con '4' preguntas, dificultad 'media'"
-        }
-      ]
+      "content": "genera un cuestionario sobre 'Literatura argentina', con '5' preguntas, dificultad 'Muy difícil'"
     }
   ],
+  "stream": false,
   "temperature": 1,
   "max_tokens": 1192,
   "top_p": 1,
@@ -43,8 +34,6 @@ Content-Type: application/json
     "type": "text"
   }
 }
-
-###
 
 ###
 POST {{api_url}}
@@ -56,35 +45,11 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "Responde con un JSON con esta estructura de TypeScript. Los 'title' no pueden tener más de 50 palabras. Los 'options' no pueden tener más de 10 palabras.\n{\n  title: string // título del quiz\n  difficulty: 'easy' | 'normal' | 'hard'\n  questions: [\n    { title: string // texto de la pregunta\n      options: string[]\n      answer: string\n    }\n  ]\n}"
+      "content": "retorná unicamente un JSON que responda a esta definición de TypeScript: string[]"
     },
     {
       "role": "user",
-      "content": "creá un cuestionario sobre 'un tema a tu elección', con '4' preguntas, dificultad 'media'"
-    }
-  ],
-  "stream": false,
-  "temperature": 1,
-  "max_tokens": 1192,
-  "top_p": 1,
-  "frequency_penalty": 0,
-  "presence_penalty": 0,
-  "response_format": {
-    "type": "text"
-  }
-}
-
-###
-POST {{api_url}}
-Authorization: Bearer {{api_key}}
-Content-Type: application/json
-
-{
-  "model": "{{model}}",
-  "messages": [
-    {
-      "role": "user",
-      "content": "Las 3 mejores ciudades del mundo para visitar, solo la lista"
+      "content": "Las 5 mejores ciudades de Argentina para visitar"
     }
   ],
   "stream": false,
@@ -103,8 +68,8 @@ POST http://localhost:3000/api/generate
 Content-Type: application/json
 
 {
-  "system": "retorná unicamente un json con el nombre, poblacion y superficie en km2 segun este esquema de typescript:\n[{ nombre: string, poblacion: number, superficie: number }\n]",
-  "user": "Las 3 mejores ciudades de Argentina"
+  "system": "retorná unicamente un JSON que responda a esta definición de TypeScript: string[]",
+  "user": "Las 5 mejores ciudades de Argentina para visitar"
 }
 
 ###
@@ -112,8 +77,8 @@ POST http://localhost:3000/api/generate
 Content-Type: application/json
 
 {
-  "system": "retorná unicamente solo la lista con las 3 mejores ciudades de argentina",
-  "user": "Las 3 mejores ciudades de Argentina para visitar, solo la lista"
+  "system": "retorná unicamente un JSON que responda a esta definición de TypeScript: Array<{ nombre: string, poblacion: number, superficie: number, hab_x_km2: number }>",
+  "user": "Las 5 mejores ciudades de Argentina para visitar"
 }
 
 ###
@@ -122,4 +87,19 @@ Content-Type: application/json
 
 {
   "user": "Las 3 mejores ciudades del mundo para visitar, solo la lista"
+}
+
+###
+POST http://localhost:3000/api/generate
+Content-Type: application/json
+
+"Las 3 mejores ciudades del mundo para visitar, solo la lista"
+
+###
+POST http://localhost:3000/api/generate
+Content-Type: application/json
+
+{
+	"system": "Responde con un cuestionario para evaluar conocimientos a modo de juego de preguntas y respuestas. Cada campo de texto puede tener como máxima 30 palabras, salvo las descripciones que pueden tener hasta 300. Se creativo al elegir el título del cuestionario. usa la descripcion para brindar contexto y contenido didáctico acerca del cuestionario y cada pregunta, sin revelar la respuesta. Responde únicamente con un JSON con esta estructura de TypeScript:\n{\n  id: `enc_${string}` // identificador de cuestionario\n  titulo: string // título del cuestionario\n  descripcion: string\n  preguntas: [\n    id: `preg_${string} // identificador de pregunta\n    {\n      titulo: string // texto de la pregunta\n      descripcion: string // texto de la pregunta\n      tipo: 'unica'\n      opciones: string[]\n      respuesta: string\n    }\n  ]\n}",
+	"user": "genera un cuestionario sobre 'Literatura argentina', con '5' preguntas, dificultad 'Muy difícil'"
 }

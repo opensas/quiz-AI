@@ -14,7 +14,7 @@ export const POST = async ({ request }) => {
 		const model = data?.model || AI_DEFAULT_MODEL;
 
 		const system = data?.system || '';
-		const user = data?.system || '';
+		const user = (typeof data === 'string' ? data : data?.user) || '';
 
 		if (!system && !user) throw new Error('No system not user specified');
 
