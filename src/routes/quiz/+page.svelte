@@ -18,9 +18,9 @@
 	async function createCuestionario() {
 		const resp = configuration.preguntas.map((p) => p.respuesta);
 		const [tema, preguntas, tono, dificultad] = resp;
-		
+
 		status = 'generate';
-		
+
 		let attempt = 1;
 		while (attempt <= RETRIES) {
 			try {
@@ -37,7 +37,6 @@
 			}
 		}
 		status = 'error';
-
 	}
 
 	function showResult() {
