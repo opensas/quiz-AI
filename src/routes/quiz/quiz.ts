@@ -40,9 +40,10 @@ export const configuration = {
 } satisfies Encuesta;
 
 const SYSTEM =
-	"Responde únicamente con un JSON con esta estructura de TypeScript. Los 'title' no pueden tener más de 50 palabras. Los 'options' no pueden tener más de 10 palabras.\n{\n  id: `enc_${string}` // identificador quiz\n  codigo: string\n  titulo: string\n preguntas: [\n { id: `preg_${string}`\n titulo: string // texto de la pregunta\ntipo: 'unica'\n      opciones: string[]\n      respuesta: string\n    }\n  ]\n}";
+	"Responde con un cuestionario para evaluar conocimientos a modo de juego de preguntas y respuestas. Cada campo de texto puede tener como máxima 30 palabras, salvo las descripciones que pueden tener hasta 300. Se creativo al elegir el título del cuestionario. usa la descripcion para brindar contexto y contenido didáctico acerca del cuestionario y cada pregunta, sin revelar la respuesta. Responde únicamente con un JSON con esta estructura de TypeScript:\n{\n  id: `enc_${string}` // identificador de cuestionario\n  titulo: string // título del cuestionario\n  descripcion: string\n  preguntas: [\n    id: `preg_${string} // identificador de pregunta\n    {\n      titulo: string // texto de la pregunta\n      descripcion: string // texto de la pregunta\n      tipo: 'unica'\n      opciones: string[]\n      respuesta: string\n    }\n  ]\n}";
+
 const USER =
-	"creá un cuestionario sobre '{tema}', con '{preguntas}' preguntas, dificultad '{dificultad}'";
+	"genera un cuestionario sobre '{tema}', con '{preguntas}' preguntas, dificultad '{dificultad}'";
 
 const GENERATE_URL = '/api/generate';
 
