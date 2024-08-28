@@ -70,6 +70,8 @@ export async function generateCuestionario(
 
 	const body = JSON.stringify({ system: SYSTEM, user });
 
+	console.log('!!! about to hit /api/generate', { body });
+
 	const response = await fetch(GENERATE_URL, {
 		headers: { 'Content-Type': 'application/json' },
 		method: 'POST',
@@ -83,9 +85,10 @@ export async function generateCuestionario(
 	}
 	const json = await response.json();
 
-	console.log({ content: json.choices[0].message.content });
+	const content = json.choices[0].message.content;
+	console.log('!!! response from /api/generate, about to parse', { content });
 
-	const cuestionario = parse(json.choices[0].message.content);
+	const cuestionario = parse(content);
 	return cuestionario as Encuesta;
 }
 

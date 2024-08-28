@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import * as Dialog from '$lib/components/ui/dialog';
 
 	const { open = true } = $props();
