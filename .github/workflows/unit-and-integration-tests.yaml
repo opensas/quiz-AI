@@ -7,9 +7,9 @@ on:
   pull_request:
 
 env:
-  OPENAI_KEY=sk-proj-...placeholder
-  OPENAI_URL=https://api.openai.com/v1/chat/completions
-  OLLAMA_URL=http://localhost:11434/api/generate
+  OPENAI_KEY: sk-proj-...placeholder
+  OPENAI_URL: https://api.openai.com/v1/chat/completions
+  OLLAMA_URL: http://localhost:11434/api/generate
 
 jobs:
   unit-and-integration-tests:
