@@ -3,27 +3,40 @@
 
 	import { Encuesta } from '$lib/components/encuesta';
 
-	import Generating from './Generating.svelte';
+	import { Error, Generate } from './dialogs';
 	import { configuration, generateCuestionario } from './quiz';
 
-	type Status = 'configure' | 'generate' | 'play' | 'result';
+	type Status = 'configure' | 'generate' | 'play' | 'result' | 'error';
 
 	let status = $state<Status>('configure');
 	let encuesta = $state<EncuestaType>();
 
 	let respuestas: string[] = [];
 
+	const RETRIES = 2;
+
 	async function createCuestionario() {
 		const resp = configuration.preguntas.map((p) => p.respuesta);
 		const [tema, preguntas, tono, dificultad] = resp;
 
 		status = 'generate';
-		encuesta = await generateCuestionario(tema, preguntas, tono, dificultad);
 
-		respuestas = encuesta.preguntas.map((p) => p.respuesta?.toString() || '');
-		for (const pregunta of encuesta.preguntas) pregunta.respuesta = undefined;
+		let attempt = 1;
+		while (attempt <= RETRIES) {
+			try {
+				encuesta = await generateCuestionario(tema, preguntas, tono, dificultad);
 
-		status = 'play';
+				respuestas = encuesta.preguntas.map((p) => p.respuesta?.toString() || '');
+				for (const pregunta of encuesta.preguntas) pregunta.respuesta = undefined;
+
+				status = 'play';
+				return;
+			} catch (e) {
+				console.error('!!! error al generar respuesta', { attempt, e });
+				attempt++;
+			}
+		}
+		status = 'error';
 	}
 
 	function showResult() {
@@ -63,7 +76,9 @@
 	{#if status === 'configure'}
 		<Encuesta class="lg:max-w-5xl" encuesta={configuration} onsave={createCuestionario} />
 	{:else if status === 'generate'}
-		<Generating />
+		<Generate />
+	{:else if status === 'error'}
+		<Error onclose={() => (status = 'configure')} />
 	{:else if status === 'play' && encuesta}
 		<Encuesta class="lg:max-w-5xl" {encuesta} onsave={showResult} />
 	{/if}
