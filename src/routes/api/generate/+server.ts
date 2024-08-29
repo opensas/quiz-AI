@@ -37,7 +37,7 @@ export const POST = async ({ request }) => {
 				messages,
 				stream: false,
 				temperature: 1,
-				max_tokens: 1192,
+				max_tokens: 4096,
 				top_p: 1,
 				frequency_penalty: 0,
 				presence_penalty: 0,
