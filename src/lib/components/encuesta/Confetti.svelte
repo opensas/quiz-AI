@@ -24,7 +24,7 @@
 </script>
 
 {#if show}
-	<div class={cn('absolute left-1/2 top-3/4 -translate-x-1/2 -translate-y-1/2', className)}>
+	<div class={cn('absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2', className)}>
 		<Confetti
 			colorArray={['#6CCFF6']}
 			{duration}

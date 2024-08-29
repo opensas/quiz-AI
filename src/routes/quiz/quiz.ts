@@ -22,7 +22,8 @@ export const configuration = {
 				'Ciencia Ficción y Fantasía'
 			],
 			respuesta: '¡Sorprendeme! (deja que la IA elija un tema)',
-			acepta_otros: true
+			acepta_otros: true,
+			texto_otros: 'Ingresa tu tema favorito'
 		},
 		{
 			id: 'preg_002',
@@ -49,36 +50,74 @@ export const configuration = {
 } satisfies Encuesta;
 
 const SYSTEM = oneLine`
-	Responde con un cuestionario para evaluar conocimientos a modo de juego de preguntas y respuestas.
-	Cada campo de texto puede tener como máxima 30 palabras, salvo las descripciones que pueden tener hasta 300.
-	Sé creativo al elegir el título del cuestionario.
-	Usa la descripcion para brindar contexto y contenido didáctico acerca del cuestionario y cada pregunta, sin revelar la respuesta.
 
-	Los nombres de los campos deben estar entre comillas para ser un JSON válido. 
-	Utiliza siempre comillas dobles para delimitar los textos, y evita usarlas dentro de los textos. 
-	Verifica que la respuesta sea un JSON válido capaz de ser procesado sin errores.
+	Eres un generador de cuestionarios interactivos diseñados como un juego de preguntas y respuestas para evaluar 
+	conocimientos. Tu tarea es crear cuestionarios en formato JSON que sean válidos y puedan ser procesados 
+	sin errores. Asegúrate de seguir las siguientes instrucciones:
 
-	Responde únicamente con un JSON válido con esta estructura de TypeScript:
-	{ 
-		id: \`enc_\${ string }\` // identificador de cuestionario
-		titulo: string // título del cuestionario
-		descripcion: string
-		preguntas: [
+	1. *Título del Cuestionario*: Sé creativo al elegir un título atractivo que refleje el tema del cuestionario.
+
+	2. *Descripción*: Proporciona una descripción clara que brinde contexto sobre el tema del cuestionario, 
+	respetando el tono indicado. Limita la descripción a un máximo de 300 palabras.
+
+	3. *Estructura del JSON*: Responde únicamente con un JSON con la siguiente estructura de TypeScript:
+
+	{
+		"id": "enc_\${string}",  // identificador de cuestionario
+		"titulo": string,       // título del cuestionario, max 30 palabras
+		"descripcion": string,  // contexto y contenido didáctico del cuestionario, max 300 palabras
+		"preguntas": [          // lista de preguntas
 			{
-				id: \`preg_\${ string }\` // identificador de pregunta
-				titulo: string // texto de la pregunta
-				descripcion: string // texto de la pregunta
-				tipo: 'unica'
-				opciones: string[]
-				solucion: string // respuesta correcta
+				"id": "preg_\${string}",   // identificador de pregunta
+				"titulo": string,         // texto de la pregunta, max 30 palabras
+				"descripcion": string,    // descripción didáctica de la pregunta, max 300 palabras
+				"tipo": "unica",          // tipo de pregunta (única opción correcta)
+				"opciones": string[],     // lista de opciones
+				"solucion": string        // respuesta correcta
 			}
-			]
-		}
+		]
 	}
+
+	Aquí tienen un ejemplo de un cuestionario sobre 'la historia geológica de la Tierra' con '2' preguntas, dificultad 'Normal' utilizando un tono sumamente 'Didáctico':
+	{
+		"id": "enc_001",
+		"titulo": "Explorando la Historia de la Tierra",
+		"descripcion": "Este cuestionario te llevará a través de aspectos fascinantes de la historia geológica de la Tierra.",
+		"preguntas": [
+			{
+				"id": "preg_001",
+				"titulo": "¿Cuál es la era geológica más antigua de la Tierra?",
+				"descripcion": "La historia de la Tierra se divide en diferentes eras geológicas.",
+				"tipo": "unica",
+				"opciones": ["Paleozoica", "Mesozoica", "Cenozoica", "Hadeana"],
+				"solucion": "Hadeana"
+			},
+			{
+				"id": "preg_002",
+				"titulo": "¿Qué fenómeno geológico es responsable de la creación de montañas?",
+				"descripcion": "Comprender cómo se forman las montañas nos ayuda a conocer los procesos tectónicos que moldean nuestro planeta.",
+				"tipo": "unica",
+				"opciones": ["Erosión", "Tectónica de placas", "Volcanismo", "Sedimentación"],
+				"solucion": "Tectónica de placas"
+			},
+		]
+	}
+
+	4. Contenido de las Preguntas: Cada pregunta debe ser educativa, con una descripción adicional 
+	que provea contexto sin revelar la respuesta.Limita las descripciones a un máximo de 300 palabras.
+
+	5. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una 
+	opción correcta.Limita las opciones a un máximo de 30 palabras por cada opción.
+
+	6. Formato de salida: Responde únicamente con un JSON válido siguiendo la estructura indicada. 
+	Verifica que el JSON esté correctamente formateado y sin errores de sintaxis.
+
+		6.1 Los nombres de los campos deben estar entre comillas dobles para ser un JSON válido. 
+		Utiliza siempre comillas dobles para delimitar los campos de texto.
 `;
 
 const USER =
-	"genera un cuestionario sobre '{tema}', con '{preguntas}' preguntas, dificultad '{dificultad}' utilizando un tono sumamente '{tono}'";
+	"Tu tarea es generar un cuestionario sobre '{tema}', con '{preguntas}' preguntas, dificultad '{dificultad}' utilizando un tono sumamente '{tono}'";
 
 const GENERATE_URL = '/api/generate';
 

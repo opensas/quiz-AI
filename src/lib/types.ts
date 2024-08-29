@@ -26,12 +26,14 @@ export type Pregunta = {
 			tipo: 'unica';
 			opciones: Array<Opcion | string>;
 			acepta_otros?: boolean;
+			texto_otros?: string;
 			respuesta?: string;
 	  }
 	| {
 			tipo: 'multiple';
 			opciones: Array<Opcion | string>;
 			acepta_otros?: boolean;
+			texto_otros?: string;
 			respuesta?: string[];
 	  }
 	| {

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Opcion, PreguntaMultiple } from '$lib/types';
 
+	import { DEFAULT_TEXTO_OTROS } from '$lib/components/encuesta/preguntas';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -63,7 +64,7 @@
 		<div class="flex items-center space-x-3">
 			<Checkbox id="opcion_otra" bind:checked={checkedOther} class="--self-start" />
 			<div class="w-full space-y-1">
-				<Input bind:value={other} --disabled placeholder="otra opción" />
+				<Input bind:value={other} placeholder={pregunta.texto_otros || DEFAULT_TEXTO_OTROS} />
 			</div>
 		</div>
 	{/if}
