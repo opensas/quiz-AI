@@ -64,7 +64,11 @@
 		<div class="flex items-center space-x-3">
 			<Checkbox id="opcion_otra" bind:checked={checkedOther} class="--self-start" />
 			<div class="w-full space-y-1">
-				<Input bind:value={other} placeholder={pregunta.texto_otros || DEFAULT_TEXTO_OTROS} />
+				<Input
+					bind:value={other}
+					placeholder={pregunta.texto_otros || DEFAULT_TEXTO_OTROS}
+					onkeyup={() => (checkedOther = !!other)}
+				/>
 			</div>
 		</div>
 	{/if}
