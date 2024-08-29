@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Opcion, PreguntaUnica } from '$lib/types';
 
+	import { DEFAULT_TEXTO_OTROS } from '$lib/components/encuesta/preguntas';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Radio from '$lib/components/ui/radio-group';
@@ -60,7 +61,7 @@
 		<div class="flex items-center space-x-3">
 			<Radio.Item id="option-other" value={OTHER_VALUE} class="--self-start" />
 			<div class="w-full space-y-1">
-				<Input bind:value={other} placeholder="Otra opción" />
+				<Input bind:value={other} placeholder={pregunta.texto_otros || DEFAULT_TEXTO_OTROS} />
 			</div>
 		</div>
 	{/if}

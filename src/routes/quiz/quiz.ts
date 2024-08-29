@@ -22,7 +22,8 @@ export const configuration = {
 				'Ciencia Ficción y Fantasía'
 			],
 			respuesta: '¡Sorprendeme! (deja que la IA elija un tema)',
-			acepta_otros: true
+			acepta_otros: true,
+			texto_otros: 'Ingresa tu tema favorito'
 		},
 		{
 			id: 'preg_002',
