@@ -54,8 +54,8 @@
 			`${message.head}\n\n Acertaste ${correctas} de ${encuesta.preguntas.length} preguntas, ` +
 			`eso es un ${porcentaje.toFixed(2)}% de aciertos.\n\n ${message.foot}`;
 
-		const resultados = encuesta.preguntas.map(({ titulo: p, solucion: s, respuesta: r }) => {
-			return `${p}: ${s} ` + (s === r ? '✅' : `❌ => ${r}`);
+		const resultados = encuesta.preguntas.map(({ titulo: preg, solucion: s, respuesta: resp }) => {
+			return `${preg}: ${resp} ` + (s === resp ? '✅' : `❌ => ${s} ✅`);
 		});
 		console.log({ resultados });
 

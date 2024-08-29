@@ -104,7 +104,7 @@ export async function generateCuestionario(
 	const json = await response.json();
 
 	const content = json.choices[0].message.content;
-	// console.log('!!! response from /api/generate, about to parse encuesta', { content });
+	console.log('!!! response from /api/generate, about to parse encuesta', { content });
 
 	return JSON.parse(content) as Encuesta;
 }
