@@ -30,14 +30,14 @@
 		<div class="grid gap-4 self-center justify-self-center py-2 text-center">
 			<div class="grid gap-2">
 				<div class="text text-5xl font-black">Felicitaciones</div>
-				<div class="text-base text-muted-foreground">
+				<div class="text-muted-foreground text-base">
 					Acertaste {correctas} de {preguntas} preguntas y se sacaste un
 				</div>
 			</div>
 
-			<div class="grid animate-shake gap-2">
+			<div class="animate-shake grid gap-2">
 				<div class="text-8xl font-bold tracking-tighter">{round(puntaje)}%</div>
-				<div class="text-sm uppercase text-muted-foreground">Puntaje</div>
+				<div class="text-muted-foreground text-sm uppercase">Puntaje</div>
 			</div>
 		</div>
 		<Dialog.Close class="focus:outline-none">
