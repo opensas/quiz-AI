@@ -30,7 +30,7 @@ export const configuration = {
 			titulo: '¿Cuántas preguntas querés responder',
 			tipo: 'unica',
 			respuesta: '5',
-			opciones: ['3', '4', '5']
+			opciones: ['3', '4', '5', '8']
 		},
 		{
 			id: 'preg_003',
@@ -52,68 +52,19 @@ export const configuration = {
 const SYSTEM = oneLine`
 
 	Eres un generador de cuestionarios interactivos diseñados como un juego de preguntas y respuestas para evaluar 
-	conocimientos. Tu tarea es crear cuestionarios en formato JSON que sean válidos y puedan ser procesados 
-	sin errores. Asegúrate de seguir las siguientes instrucciones:
+	conocimientos. Tu tarea es crear cuestionarios en formato JSON especificado en response_format:
 
-	1. *Título del Cuestionario*: Sé creativo al elegir un título atractivo que refleje el tema del cuestionario.
+	1. Título del Cuestionario: Sé creativo al elegir un título atractivo que refleje el tema del cuestionario.
 
-	2. *Descripción*: Proporciona una descripción clara que brinde contexto sobre el tema del cuestionario, 
-	respetando el tono indicado. Limita la descripción a un máximo de 300 palabras.
+	2. Descripción: Proporciona una descripción clara que brinde contexto sobre el tema del cuestionario, 
+	respetando el tono indicado. Limita la descripción a un máximo de 100 palabras.
 
-	3. *Estructura del JSON*: Responde únicamente con un JSON con la siguiente estructura de TypeScript:
+	3. Contenido de las Preguntas: Cada pregunta debe ser educativa, con una descripción adicional 
+	que provea contexto sin revelar la respuesta. Cada palabra debe ser de tipo 'unica'.
+	Limita las descripciones a un máximo de 100 palabras.
 
-	{
-		"id": "enc_\${string}",  // identificador de cuestionario
-		"titulo": string,       // título del cuestionario, max 30 palabras
-		"descripcion": string,  // contexto y contenido didáctico del cuestionario, max 300 palabras
-		"preguntas": [          // lista de preguntas
-			{
-				"id": "preg_\${string}",   // identificador de pregunta
-				"titulo": string,         // texto de la pregunta, max 30 palabras
-				"descripcion": string,    // descripción didáctica de la pregunta, max 300 palabras
-				"tipo": "unica",          // tipo de pregunta (única opción correcta)
-				"opciones": string[],     // lista de opciones
-				"solucion": string        // respuesta correcta
-			}
-		]
-	}
-
-	Aquí tienen un ejemplo de un cuestionario sobre 'la historia geológica de la Tierra' con '2' preguntas, dificultad 'Normal' utilizando un tono sumamente 'Didáctico':
-	{
-		"id": "enc_001",
-		"titulo": "Explorando la Historia de la Tierra",
-		"descripcion": "Este cuestionario te llevará a través de aspectos fascinantes de la historia geológica de la Tierra.",
-		"preguntas": [
-			{
-				"id": "preg_001",
-				"titulo": "¿Cuál es la era geológica más antigua de la Tierra?",
-				"descripcion": "La historia de la Tierra se divide en diferentes eras geológicas.",
-				"tipo": "unica",
-				"opciones": ["Paleozoica", "Mesozoica", "Cenozoica", "Hadeana"],
-				"solucion": "Hadeana"
-			},
-			{
-				"id": "preg_002",
-				"titulo": "¿Qué fenómeno geológico es responsable de la creación de montañas?",
-				"descripcion": "Comprender cómo se forman las montañas nos ayuda a conocer los procesos tectónicos que moldean nuestro planeta.",
-				"tipo": "unica",
-				"opciones": ["Erosión", "Tectónica de placas", "Volcanismo", "Sedimentación"],
-				"solucion": "Tectónica de placas"
-			},
-		]
-	}
-
-	4. Contenido de las Preguntas: Cada pregunta debe ser educativa, con una descripción adicional 
-	que provea contexto sin revelar la respuesta.Limita las descripciones a un máximo de 300 palabras.
-
-	5. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una 
-	opción correcta.Limita las opciones a un máximo de 30 palabras por cada opción.
-
-	6. Formato de salida: Responde únicamente con un JSON válido siguiendo la estructura indicada. 
-	Verifica que el JSON esté correctamente formateado y sin errores de sintaxis.
-
-		6.1 Los nombres de los campos deben estar entre comillas dobles para ser un JSON válido. 
-		Utiliza siempre comillas dobles para delimitar los campos de texto.
+	4. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una 
+	opción correcta. Limita las opciones a un máximo de 30 palabras por cada opción.
 `;
 
 const USER =
@@ -135,9 +86,9 @@ export async function generateCuestionario(
 		.replace('{tono}', tono)
 		.replace('{dificultad}', dificultad);
 
-	const body = JSON.stringify({ system: SYSTEM, user });
+	const body = JSON.stringify({ system: SYSTEM, user, schema: RESPONSE_JSON_SCHEMA });
 
-	console.log('!!! about to hit /api/generate', { body });
+	// console.log('!!! about to hit /api/generate', { body });
 
 	const response = await fetch(GENERATE_URL, {
 		headers: { 'Content-Type': 'application/json' },
@@ -153,14 +104,41 @@ export async function generateCuestionario(
 	const json = await response.json();
 
 	const content = json.choices[0].message.content;
-	console.log('!!! response from /api/generate, about to parse', { content });
+	// console.log('!!! response from /api/generate, about to parse encuesta', { content });
 
-	const cuestionario = parse(content);
-	return cuestionario as Encuesta;
+	return JSON.parse(content) as Encuesta;
 }
 
-function parse(content: string) {
-	// strip head and tail
-	const clean = content.replace(/```json\n/, '').replace(/\n```/, '');
-	return JSON.parse(clean);
-}
+const RESPONSE_JSON_SCHEMA = {
+	name: 'cuestionario',
+	strict: true,
+	schema: {
+		type: 'object',
+		additionalProperties: false,
+		required: ['id', 'titulo', 'descripcion', 'preguntas'],
+		properties: {
+			id: { type: 'string' },
+			titulo: { type: 'string' },
+			descripcion: { type: 'string' },
+			preguntas: {
+				type: 'array',
+				items: {
+					type: 'object',
+					additionalProperties: false,
+					required: ['id', 'titulo', 'descripcion', 'tipo', 'opciones', 'solucion'],
+					properties: {
+						id: { type: 'string' },
+						titulo: { type: 'string' },
+						descripcion: { type: 'string' },
+						tipo: { type: 'string', const: 'unica' },
+						opciones: {
+							type: 'array',
+							items: { type: 'string' }
+						},
+						solucion: { type: 'string' }
+					}
+				}
+			}
+		}
+	}
+};
