@@ -7,7 +7,6 @@
 	import { cn } from '$lib/utils';
 
 	import Confetti from './Confetti.svelte';
-	// import { Confetti } from 'svelte-confetti';
 	import { Libre, Multiple, Puntaje, Unica } from './preguntas';
 
 	type Props = {
@@ -28,27 +27,32 @@
 	let status: 'contestando' | 'vacio' | 'correcta' | 'incorrecta' | 'desconocido' =
 		$state('contestando');
 
-	function answer() {
+	function sleep(ms: number) {
+		return new Promise((resolve) => setTimeout(resolve, ms));
+	}
+
+	async function answer() {
 		const { solucion, respuesta } = pregunta;
 
-		if (!respuesta) {
-			status = 'vacio';
-			setTimeout(() => (status = 'contestando'), 1300);
-			return;
+		status = 'contestando';
+
+		if (!respuesta) status = 'vacio';
+		else if (!solucion) status = 'desconocido';
+		else if (solucion === respuesta) status = 'correcta';
+		else status = 'incorrecta';
+
+		// esperamos la animación
+		if (status === 'vacio' || status === 'correcta' || status === 'incorrecta') await sleep(1300);
+
+		status = 'contestando';
+		if (!respuesta) return; // no paso a la proxima pregunta
+
+		if (isLast) {
+			onsave(encuesta);
+			return; // no paso a la proxima pregunta
 		}
 
-		status = !solucion ? 'desconocido' : solucion === respuesta ? 'correcta' : 'incorrecta';
-		if (isLast) onsave(encuesta);
-
-		// no animation
-		if (status === 'desconocido') {
-			status = 'contestando';
-			current++;
-		}
-		// wait for animation to finish
-		if (status === 'correcta' || status === 'incorrecta') {
-			setTimeout(() => ((status = 'contestando'), current++), 1300);
-		}
+		current++; // proxima pregunta
 	}
 
 	const isLast = $derived(current === encuesta.preguntas.length - 1);
