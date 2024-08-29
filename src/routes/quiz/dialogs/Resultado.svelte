@@ -29,8 +29,6 @@
 		return `${preg}: ${resp} ` + (s === resp ? '✅' : `❌ => ${s} ✅`);
 	});
 	console.log({ resultados });
-
-	const round = (num: number) => Math.round(num * 100) / 100;
 </script>
 
 <Dialog.Root closeOnEscape={false} closeOnOutsideClick={false} {open}>
@@ -44,7 +42,7 @@
 			</div>
 
 			<div class="grid animate-shake gap-2">
-				<div class="text-8xl font-bold tracking-tighter">{round($puntaje)}%</div>
+				<div class="text-8xl font-bold tracking-tighter">{Math.round($puntaje)}%</div>
 				<div class="text-sm uppercase text-muted-foreground">Puntaje</div>
 			</div>
 		</div>
