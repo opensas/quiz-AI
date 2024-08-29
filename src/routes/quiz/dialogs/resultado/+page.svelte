@@ -2,9 +2,12 @@
 	import { DEFAULT_ENCUESTA } from '$lib/components/encuesta';
 
 	import { Resultado } from '..';
-	// page to test how the generating dialog looks like
+
+	const encuesta = DEFAULT_ENCUESTA;
+	encuesta.preguntas[1].solucion = encuesta.preguntas[1].respuesta;
+	encuesta.preguntas[2].solucion = encuesta.preguntas[2].respuesta;
 </script>
 
 <div class="flex h-screen items-center justify-center">
-	<Resultado encuesta={DEFAULT_ENCUESTA} />
+	<Resultado {encuesta} />
 </div>

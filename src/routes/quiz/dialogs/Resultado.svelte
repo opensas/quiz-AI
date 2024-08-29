@@ -19,6 +19,9 @@
 	const resultados = encuesta.preguntas.map(({ titulo: preg, solucion: s, respuesta: resp }) => {
 		return `${preg}: ${resp} ` + (s === resp ? '✅' : `❌ => ${s} ✅`);
 	});
+
+	const round = (num: number) => (num % 1 !== 0 ? num.toFixed(2) : num);
+
 	console.log({ resultados });
 </script>
 
@@ -33,7 +36,7 @@
 			</div>
 
 			<div class="grid animate-shake gap-2">
-				<div class="text-8xl font-bold tracking-tighter">{puntaje}%</div>
+				<div class="text-8xl font-bold tracking-tighter">{round(puntaje)}%</div>
 				<div class="text-sm uppercase text-muted-foreground">Puntaje</div>
 			</div>
 		</div>
