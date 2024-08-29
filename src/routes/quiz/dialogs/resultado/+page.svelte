@@ -1,6 +1,8 @@
 <script>
 	import { DEFAULT_ENCUESTA } from '$lib/components/encuesta';
 
+	import { goto } from '$app/navigation';
+
 	import { Resultado } from '..';
 
 	const encuesta = DEFAULT_ENCUESTA;
@@ -9,5 +11,5 @@
 </script>
 
 <div class="flex h-screen items-center justify-center">
-	<Resultado {encuesta} />
+	<Resultado {encuesta} onclose={() => goto('/')} />
 </div>
