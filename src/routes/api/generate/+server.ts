@@ -15,6 +15,7 @@ export const POST = async ({ request }) => {
 
 		const system = data?.system || '';
 		const user = (typeof data === 'string' ? data : data?.user) || '';
+		const schema = data?.schema;
 
 		if (!system && !user) throw new Error('No system not user specified');
 
@@ -27,6 +28,10 @@ export const POST = async ({ request }) => {
 			if (system) messages.push({ role: 'system', content: system });
 			if (user) messages.push({ role: 'user', content: user });
 
+			const response_format = schema
+				? { type: 'json_schema', json_schema: schema }
+				: { type: 'text' };
+
 			const body = JSON.stringify({
 				model,
 				messages,
@@ -36,7 +41,7 @@ export const POST = async ({ request }) => {
 				top_p: 1,
 				frequency_penalty: 0,
 				presence_penalty: 0,
-				response_format: { type: 'text' }
+				response_format
 			});
 			// console.log('!!!', { body });
 
