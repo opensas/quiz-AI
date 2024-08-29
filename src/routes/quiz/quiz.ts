@@ -30,7 +30,7 @@ export const configuration = {
 			titulo: '¿Cuántas preguntas querés responder',
 			tipo: 'unica',
 			respuesta: '5',
-			opciones: ['3', '4', '5', '8']
+			opciones: ['3', '4', '5']
 		},
 		{
 			id: 'preg_003',
