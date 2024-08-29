@@ -11,6 +11,8 @@
 		scale?: number;
 		duration?: ConfettiProps['duration'];
 		size?: ConfettiProps['size'];
+		infinite?: ConfettiProps['infinite'];
+		delay?: ConfettiProps['delay'];
 		class?: string;
 	};
 
@@ -19,6 +21,8 @@
 		scale = 2,
 		duration = 1200,
 		size = 15,
+		infinite = false,
+		delay,
 		class: className = ''
 	}: Props = $props();
 </script>
@@ -27,28 +31,36 @@
 	<div class={cn('absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2', className)}>
 		<Confetti
 			colorArray={['#6CCFF6']}
+			{delay}
 			{duration}
+			{infinite}
 			{size}
 			x={[scale * -1, scale * 1]}
 			y={[scale * 1.25, scale * 1.5]}
 		/>
 		<Confetti
 			colorArray={['white']}
+			{delay}
 			{duration}
+			{infinite}
 			{size}
 			x={[scale * -1, scale * 1]}
 			y={[scale * 1, scale * 1.25]}
 		/>
 		<Confetti
 			colorArray={['#F7D417']}
+			{delay}
 			{duration}
+			{infinite}
 			{size}
 			x={[scale * -0.2, scale * 0.2]}
 			y={[scale * 1, scale * 1.25]}
 		/>
 		<Confetti
 			colorArray={['#6CCFF6']}
+			{delay}
 			{duration}
+			{infinite}
 			{size}
 			x={[scale * -1, scale * 1]}
 			y={[scale * 0.75, scale * 1]}
