@@ -15,3 +15,9 @@ docker run -d -p 3000:8080 --network=host -e OLLAMA_BASE_URL=http://127.0.0.1:11
 ir a localhost:8080
 
 crear una clave
+
+---
+
+# resources
+
+- video on youtube: https://www.youtube.com/watch?v=BzFafshQkWw
