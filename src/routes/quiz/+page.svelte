@@ -8,6 +8,8 @@
 
 	type Status = 'configure' | 'generate' | 'play' | 'result' | 'error';
 
+	let { data } = $props();
+
 	let status = $state<Status>('configure');
 	let encuesta = $state<EncuestaType>();
 
@@ -32,6 +34,17 @@
 		}
 		status = 'error';
 	}
+
+	function init() {
+		const q = data.query;
+		if (q.tema) configuration.preguntas[0].respuesta = q.tema;
+		if (q.preguntas) configuration.preguntas[1].respuesta = q.preguntas;
+		if (q.tono) configuration.preguntas[2].respuesta = q.tono;
+		if (q.dificultad) configuration.preguntas[3].respuesta = q.dificultad;
+		if (q.play !== undefined) createCuestionario();
+	}
+
+	init();
 </script>
 
 <div class="flex h-screen items-center justify-center px-2 sm:px-10">
