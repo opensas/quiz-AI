@@ -40,7 +40,6 @@ export const configuration = {
 			opciones: ['Didáctico', 'Enciclopédico', 'Irónico', 'Gracioso', 'Disparatado'],
 			acepta_otros: true,
 			texto_otros: 'Ingresa tu tono favorito (enigmático, melancólico, arrogante, sarcástico, etc.)'
-
 		},
 		{
 			id: 'preg_004',
