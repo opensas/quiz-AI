@@ -37,7 +37,10 @@ export const configuration = {
 			titulo: '¿Qué tono querés que tengan las preguntas?',
 			tipo: 'unica',
 			respuesta: 'Didáctico',
-			opciones: ['Didáctico', 'Enciclopédico', 'Irónico', 'Gracioso', 'Disparatado']
+			opciones: ['Didáctico', 'Enciclopédico', 'Irónico', 'Gracioso', 'Disparatado'],
+			acepta_otros: true,
+			texto_otros: 'Ingresa tu tono favorito (enigmático, melancólico, arrogante, sarcástico, etc.)'
+
 		},
 		{
 			id: 'preg_004',
