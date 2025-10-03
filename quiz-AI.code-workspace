@@ -1,0 +1,26 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"cSpell.words": [
+			"descripcion",
+			"dotenv",
+			"groq",
+			"kimi",
+			"moonshotai",
+			"ollama",
+			"OLLAMA",
+			"openai",
+			"OPENAI",
+			"preg",
+			"solucion",
+			"unica",
+			"vercel",
+			"webui",
+			"youtube"
+		]
+	}
+}
