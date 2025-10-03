@@ -1,11 +1,69 @@
 # see: https://platform.openai.com/api-keys
 
 # chat-01-test02-key
-@api_key = {{$dotenv OPENAI_KEY}}
 
-@model = gpt-4o-mini
+# open-ai settings
+# @api_key = {{$dotenv OPENAI_KEY}}
+# @model = {{$dotenv OPENAI_MODEL}}
+# @api_url = {{$dotenv OPENAI_URL}}
 
-@api_url = https://api.openai.com/v1/chat/completions
+# grok settings
+@api_key = {{$dotenv GROQ_KEY}}
+@model = {{$dotenv GROQ_MODEL}}
+@api_url = {{$dotenv GROQ_URL}}
+
+
+###
+# test grok json_schema support
+POST https://api.groq.com/openai/v1/chat/completions
+Authorization: Bearer {{api_key}}
+Content-Type: application/json
+
+{
+	"model": "moonshotai/kimi-k2-instruct-0905",
+	"messages": [{ "role": "user", "content": "Give me a JSON object with id and titulo" }],
+	"response_format": {
+		"type": "json_schema",
+		"json_schema": {
+			"name": "quiz_schema",
+			"schema": {
+				"type": "object",
+				"properties": {
+					"id": { "type": "string" },
+					"titulo": { "type": "string" }
+				},
+				"required": ["id", "titulo"]
+			}
+		}
+	}
+}
+
+
+###
+POST {{api_url}}
+Authorization: Bearer {{api_key}}
+Content-Type: application/json
+
+{
+  "model": "{{model}}",
+  "messages": [
+    {
+      "role": "system",
+			"content": "\nEres un generador de cuestionarios interactivos diseñados como un juego de preguntas y respuestas para evaluar \n  conocimientos. Tu tarea es crear cuestionarios en formato JSON que sean válidos y puedan ser procesados \n  sin errores. Asegúrate de seguir las siguientes instrucciones:\n\n  1. *Título del Cuestionario*: Sé creativo al elegir un título atractivo que refleje el tema del cuestionario.\n\n  2. *Descripción*: Proporciona una descripción clara que brinde contexto sobre el tema del cuestionario, \n  respetando el tono indicado. Limita la descripción a un máximo de 300 palabras.\n\n  3. *Estructura del JSON*: Responde únicamente con un JSON con la siguiente estructura de TypeScript:\n\n  {\n    \"id\": \"enc_${string}\",  // identificador de cuestionario\n    \"titulo\": string,       // título del cuestionario, max 30 palabras\n    \"descripcion\": string,  // contexto y contenido didáctico del cuestionario, max 300 palabras\n    \"preguntas\": [          // lista de preguntas\n      {\n        \"id\": \"preg_${string}\",   // identificador de pregunta\n        \"titulo\": string,         // texto de la pregunta, max 30 palabras\n        \"descripcion\": string,    // descripción didáctica de la pregunta, max 300 palabras\n        \"tipo\": \"unica\",          // tipo de pregunta (única opción correcta)\n        \"opciones\": string[],     // lista de opciones\n        \"solucion\": string        // respuesta correcta\n      }\n    ]\n  }\n\n  Aquí tienen un ejemplo de un cuestionario sobre 'la historia geológica de la Tierra' con '2' preguntas, dificultad 'Normal' utilizando un tono sumamente 'Didáctico':\n  {\n    \"id\": \"enc_001\",\n    \"titulo\": \"Explorando la Historia de la Tierra\",\n    \"descripcion\": \"Este cuestionario te llevará a través de aspectos fascinantes de la historia geológica de la Tierra.\",\n    \"preguntas\": [\n      {\n        \"id\": \"preg_001\",\n        \"titulo\": \"¿Cuál es la era geológica más antigua de la Tierra?\",\n        \"descripcion\": \"La historia de la Tierra se divide en diferentes eras geológicas.\",\n        \"tipo\": \"unica\",\n        \"opciones\": [\"Paleozoica\", \"Mesozoica\", \"Cenozoica\", \"Hadeana\"],\n        \"solucion\": \"Hadeana\"\n      },\n      {\n        \"id\": \"preg_002\",\n        \"titulo\": \"¿Qué fenómeno geológico es responsable de la creación de montañas?\",\n        \"descripcion\": \"Comprender cómo se forman las montañas nos ayuda a conocer los procesos tectónicos que moldean nuestro planeta.\",\n        \"tipo\": \"unica\",\n        \"opciones\": [\"Erosión\", \"Tectónica de placas\", \"Volcanismo\", \"Sedimentación\"],\n        \"solucion\": \"Tectónica de placas\"\n      },\n    ]\n  }\n\n  4. Contenido de las Preguntas: Cada pregunta debe ser educativa, con una descripción adicional \n  que provea contexto sin revelar la respuesta.Limita las descripciones a un máximo de 300 palabras.\n\n  5. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una \n  opción correcta.Limita las opciones a un máximo de 30 palabras por cada opción.\n\n  6. Formato de salida: Responde únicamente con un JSON válido siguiendo la estructura indicada. \n  Verifica que el JSON esté correctamente formateado y sin errores de sintaxis.\n\n    6.1 Los nombres de los campos deben estar entre comillas dobles para ser un JSON válido. \n    Utiliza siempre comillas dobles para delimitar los campos de texto."
+    },
+    {
+      "role": "user",
+      "content": "Siguiendo estas instrucciones crea un cuestionario con '3' preguntas acerca de 'historia del arte'."
+    }
+  ],
+  "stream": false,
+  "temperature": 1,
+  "max_tokens": 1192,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "response_format": { "type": "json_object" }
+}
 
 ###
 POST {{api_url}}
@@ -118,6 +176,32 @@ curl http://localhost:11434/api/chat -d '{
     { "role": "user", "content": "why is the sky blue?" }
   ]
 }'
+
+
+```shell
+curl https://cool-shortly-quagga.ngrok-free.app/api/chat -d '{
+  "model": "llama3.1",
+  "messages": [
+    { "role": "user", "content": "why is the sky blue?" }
+  ]
+}'
+```
+
+```shell
+curl https://cool-shortly-quagga.ngrok-free.app/api/tags
+```
+
+```shell
+curl https://cool-shortly-quagga.ngrok-free.app/api/pull -d '{
+  "name": "llama3.1"
+}'
+```
+
+curl http://localhost:11434/api/pull -d '{
+  "name": "llama3.1"
+}'
+
+
 
 @ollama_model = llama3.1
 
@@ -265,6 +349,7 @@ POST {{ollama_url}}/api/generate
   "format": "json",
   "stream": false
 }
+
 
 ###
 # json mode: https://github.com/ollama/ollama/blob/main/docs/api.md#request-json-mode
