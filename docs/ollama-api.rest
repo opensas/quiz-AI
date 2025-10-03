@@ -4,6 +4,8 @@ example hitting local ollama
 
 @ollama_url = http://localhost:11434
 
+###
+
 POST {{ollama_url}}/api/generate
 
 {
