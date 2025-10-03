@@ -8,20 +8,25 @@
 # @api_url = {{$dotenv OPENAI_URL}}
 
 # grok settings
-@api_key = {{$dotenv GROQ_KEY}}
-@model = {{$dotenv GROQ_MODEL}}
 @api_url = {{$dotenv GROQ_URL}}
-
+@api_key = {{$dotenv GROQ_KEY}}
+# @model = {{$dotenv GROQ_MODEL}}
+@model = openai/gpt-oss-20b
+# @model = meta-llama/llama-4-scout-17b-16e-instruct
+# @model = moonshotai/kimi-k2-instruct-0905
 
 ###
 # test grok json_schema support
-POST https://api.groq.com/openai/v1/chat/completions
+POST {{api_url}}
 Authorization: Bearer {{api_key}}
 Content-Type: application/json
 
 {
-	"model": "moonshotai/kimi-k2-instruct-0905",
-	"messages": [{ "role": "user", "content": "Give me a JSON object with id and titulo" }],
+	"model": "{{model}}",
+	"messages": [
+		{ "role": "system", "content": "Your task it to generate valid json structured data following the passed json_schema and the user content" },
+		{ "role": "user", "content": "Give me a JSON object with id and titulo" }
+	],
 	"response_format": {
 		"type": "json_schema",
 		"json_schema": {
