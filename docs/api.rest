@@ -7,456 +7,179 @@
 # @model = {{$dotenv OPENAI_MODEL}}
 # @api_url = {{$dotenv OPENAI_URL}}
 
-# grok settings
-@api_url = {{$dotenv GROQ_URL}}
-@api_key = {{$dotenv GROQ_KEY}}
-# @model = {{$dotenv GROQ_MODEL}}
+# grok provider
+@api_url = http://localhost:3000
+@provider = groq
 @model = openai/gpt-oss-20b
 # @model = meta-llama/llama-4-scout-17b-16e-instruct
 # @model = moonshotai/kimi-k2-instruct-0905
 
 ###
 # test grok json_schema support
-POST {{api_url}}
-Authorization: Bearer {{api_key}}
+POST {{api_url}}/api/generate
 Content-Type: application/json
 
 {
+	"provider": "{{provider}}",
 	"model": "{{model}}",
-	"messages": [
-		{ "role": "system", "content": "Your task it to generate valid json structured data following the passed json_schema and the user content" },
-		{ "role": "user", "content": "Give me a JSON object with id and titulo" }
-	],
-	"response_format": {
-		"type": "json_schema",
-		"json_schema": {
-			"name": "quiz_schema",
-			"schema": {
-				"type": "object",
-				"properties": {
-					"id": { "type": "string" },
-					"titulo": { "type": "string" }
+	"system": "Eres un generador de cuestionarios interactivos diseñados como un juego de preguntas y respuestas para evaluar  conocimientos. Tu tarea es crear cuestionarios en formato JSON especificado en response_format: 1. Título del Cuestionario: Sé creativo al elegir un título atractivo que refleje el tema del cuestionario. 2. Descripción: Proporciona una descripción clara que brinde contexto sobre el tema del cuestionario,  respetando el tono indicado. Limita la descripción a un máximo de 100 palabras. 3. Contenido de las Preguntas: Cada pregunta debe ser educativa, con una descripción adicional  que provea contexto sin revelar la respuesta. Cada palabra debe ser de tipo 'unica'. Limita las descripciones a un máximo de 100 palabras. 4. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una  opción correcta. Limita las opciones a un máximo de 30 palabras por cada opción.",
+	"user": "Tu tarea es generar un cuestionario sobre 'Literatura argentina', con '3' preguntas, dificultad 'Difícil' utilizando un tono sumamente 'Didáctico'",
+	"schema": {
+		"name": "cuestionario",
+		"schema": {
+			"additionalProperties": false,
+			"properties": {
+				"descripcion": {
+					"type": "string"
 				},
-				"required": ["id", "titulo"]
-			}
-		}
+				"id": {
+					"type": "string"
+				},
+				"preguntas": {
+					"items": {
+						"additionalProperties": false,
+						"properties": {
+							"descripcion": {
+								"type": "string"
+							},
+							"id": {
+								"type": "string"
+							},
+							"opciones": {
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							},
+							"solucion": {
+								"type": "string"
+							},
+							"tipo": {
+								"const": "unica",
+								"type": "string"
+							},
+							"titulo": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"id",
+							"titulo",
+							"descripcion",
+							"tipo",
+							"opciones",
+							"solucion"
+						],
+						"type": "object"
+					},
+					"type": "array"
+				},
+				"titulo": {
+					"type": "string"
+				}
+			},
+			"required": [
+				"id",
+				"titulo",
+				"descripcion",
+				"preguntas"
+			],
+			"type": "object"
+		},
+		"strict": true
 	}
 }
 
 
-###
-POST {{api_url}}
-Authorization: Bearer {{api_key}}
-Content-Type: application/json
+### response
+
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: *
+content-type: application/json
+Date: Fri, 03 Oct 2025 22:38:19 GMT
+Connection: keep-alive
+keep-alive: timeout=5
+Transfer-Encoding: chunked
 
 {
-  "model": "{{model}}",
-  "messages": [
+  "id": "chatcmpl-4b31b75a-638b-4e39-947b-a5e6a12b0831",
+  "object": "chat.completion",
+  "created": 1759531099,
+  "model": "openai/gpt-oss-20b",
+  "choices": [
     {
-      "role": "system",
-			"content": "\nEres un generador de cuestionarios interactivos diseñados como un juego de preguntas y respuestas para evaluar \n  conocimientos. Tu tarea es crear cuestionarios en formato JSON que sean válidos y puedan ser procesados \n  sin errores. Asegúrate de seguir las siguientes instrucciones:\n\n  1. *Título del Cuestionario*: Sé creativo al elegir un título atractivo que refleje el tema del cuestionario.\n\n  2. *Descripción*: Proporciona una descripción clara que brinde contexto sobre el tema del cuestionario, \n  respetando el tono indicado. Limita la descripción a un máximo de 300 palabras.\n\n  3. *Estructura del JSON*: Responde únicamente con un JSON con la siguiente estructura de TypeScript:\n\n  {\n    \"id\": \"enc_${string}\",  // identificador de cuestionario\n    \"titulo\": string,       // título del cuestionario, max 30 palabras\n    \"descripcion\": string,  // contexto y contenido didáctico del cuestionario, max 300 palabras\n    \"preguntas\": [          // lista de preguntas\n      {\n        \"id\": \"preg_${string}\",   // identificador de pregunta\n        \"titulo\": string,         // texto de la pregunta, max 30 palabras\n        \"descripcion\": string,    // descripción didáctica de la pregunta, max 300 palabras\n        \"tipo\": \"unica\",          // tipo de pregunta (única opción correcta)\n        \"opciones\": string[],     // lista de opciones\n        \"solucion\": string        // respuesta correcta\n      }\n    ]\n  }\n\n  Aquí tienen un ejemplo de un cuestionario sobre 'la historia geológica de la Tierra' con '2' preguntas, dificultad 'Normal' utilizando un tono sumamente 'Didáctico':\n  {\n    \"id\": \"enc_001\",\n    \"titulo\": \"Explorando la Historia de la Tierra\",\n    \"descripcion\": \"Este cuestionario te llevará a través de aspectos fascinantes de la historia geológica de la Tierra.\",\n    \"preguntas\": [\n      {\n        \"id\": \"preg_001\",\n        \"titulo\": \"¿Cuál es la era geológica más antigua de la Tierra?\",\n        \"descripcion\": \"La historia de la Tierra se divide en diferentes eras geológicas.\",\n        \"tipo\": \"unica\",\n        \"opciones\": [\"Paleozoica\", \"Mesozoica\", \"Cenozoica\", \"Hadeana\"],\n        \"solucion\": \"Hadeana\"\n      },\n      {\n        \"id\": \"preg_002\",\n        \"titulo\": \"¿Qué fenómeno geológico es responsable de la creación de montañas?\",\n        \"descripcion\": \"Comprender cómo se forman las montañas nos ayuda a conocer los procesos tectónicos que moldean nuestro planeta.\",\n        \"tipo\": \"unica\",\n        \"opciones\": [\"Erosión\", \"Tectónica de placas\", \"Volcanismo\", \"Sedimentación\"],\n        \"solucion\": \"Tectónica de placas\"\n      },\n    ]\n  }\n\n  4. Contenido de las Preguntas: Cada pregunta debe ser educativa, con una descripción adicional \n  que provea contexto sin revelar la respuesta.Limita las descripciones a un máximo de 300 palabras.\n\n  5. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una \n  opción correcta.Limita las opciones a un máximo de 30 palabras por cada opción.\n\n  6. Formato de salida: Responde únicamente con un JSON válido siguiendo la estructura indicada. \n  Verifica que el JSON esté correctamente formateado y sin errores de sintaxis.\n\n    6.1 Los nombres de los campos deben estar entre comillas dobles para ser un JSON válido. \n    Utiliza siempre comillas dobles para delimitar los campos de texto."
-    },
-    {
-      "role": "user",
-      "content": "Siguiendo estas instrucciones crea un cuestionario con '3' preguntas acerca de 'historia del arte'."
-    }
-  ],
-  "stream": false,
-  "temperature": 1,
-  "max_tokens": 1192,
-  "top_p": 1,
-  "frequency_penalty": 0,
-  "presence_penalty": 0,
-  "response_format": { "type": "json_object" }
-}
-
-###
-POST {{api_url}}
-Authorization: Bearer {{api_key}}
-Content-Type: application/json
-
-{
-  "model": "{{model}}",
-  "messages": [
-    {
-      "role": "system",
-      "content": "Responde con un cuestionario para evaluar conocimientos a modo de juego de preguntas y respuestas. Cada campo de texto puede tener como máxima 30 palabras, salvo las descripciones que pueden tener hasta 300. Se creativo al elegir el título del cuestionario. usa la descripcion para brindar contexto y contenido didáctico acerca del cuestionario y cada pregunta, sin revelar la respuesta. Los nombres de los campos deben estar entre comillas para ser un JSON válido. Utiliza siempre comillas dobles para delimitar los textos, y evita usarlas dentro de los textos. Verifica que la respuesta sea un JSON válido capaz de ser procesado sin errores. Responde únicamente con un JSON válido con esta estructura de TypeScript:\n{\n  id: `enc_${string}` // identificador de cuestionario\n  titulo: string // título del cuestionario\n  descripcion: string\n  preguntas: [\n    id: `preg_${string} // identificador de pregunta\n    {\n      titulo: string // texto de la pregunta\n      descripcion: string // texto de la pregunta\n      tipo: 'unica'\n      opciones: string[]\n      respuesta: string\n    }\n  ]\n}"
-    },
-    {
-      "role": "user",
-      "content": "genera un cuestionario sobre 'Literatura argentina', con '5' preguntas, dificultad 'Muy difícil'  utilizando un tono sumamente 'didáctico'"
-    }
-  ],
-  "stream": false,
-  "temperature": 1,
-  "max_tokens": 1192,
-  "top_p": 1,
-  "frequency_penalty": 0,
-  "presence_penalty": 0,
-  "response_format": {
-    "type": "text"
-  }
-}
-
-###
-POST {{api_url}}
-Authorization: Bearer {{api_key}}
-Content-Type: application/json
-
-{
-  "model": "{{model}}",
-  "messages": [
-    {
-      "role": "system",
-      "content": "retorná unicamente un JSON que responda a esta definición de TypeScript: string[]"
-    },
-    {
-      "role": "user",
-      "content": "Las 5 mejores ciudades de Argentina para visitar"
-    }
-  ],
-  "stream": false,
-  "temperature": 1,
-  "max_tokens": 1192,
-  "top_p": 1,
-  "frequency_penalty": 0,
-  "presence_penalty": 0,
-  "response_format": {
-    "type": "text"
-  }
-}
-
-###
-POST http://localhost:3000/api/generate
-Content-Type: application/json
-
-{
-  "system": "retorná unicamente un JSON que responda a esta definición de TypeScript: string[]",
-  "user": "Las 5 mejores ciudades de Argentina para visitar"
-}
-
-###
-POST http://localhost:3000/api/generate
-Content-Type: application/json
-
-{
-  "system": "retorná unicamente un JSON que responda a esta definición de TypeScript: Array<{ nombre: string, poblacion: number, superficie: number, hab_x_km2: number }>",
-  "user": "Las 5 mejores ciudades de Argentina para visitar"
-}
-
-###
-POST http://localhost:3000/api/generate
-Content-Type: application/json
-
-{
-  "user": "Las 3 mejores ciudades del mundo para visitar, solo la lista"
-}
-
-###
-POST http://localhost:3000/api/generate
-Content-Type: application/json
-
-"Las 3 mejores ciudades del mundo para visitar, solo la lista"
-
-###
-POST http://localhost:3000/api/generate
-Content-Type: application/json
-
-{
-	"system": "Responde con un cuestionario para evaluar conocimientos a modo de juego de preguntas y respuestas. Cada campo de texto puede tener como máxima 30 palabras, salvo las descripciones que pueden tener hasta 300. Se creativo al elegir el título del cuestionario. usa la descripcion para brindar contexto y contenido didáctico acerca del cuestionario y cada pregunta, sin revelar la respuesta. Los nombres de los campos deben estar entre comillas para ser un JSON válido. Utiliza siempre comillas dobles para delimitar los textos, y evita usarlas dentro de los textos. Verifica que la respuesta sea un JSON válido capaz de ser procesado sin errores. Responde únicamente con un JSON válido con esta estructura de TypeScript:\n{\n  id: `enc_${string}` // identificador de cuestionario\n  titulo: string // título del cuestionario\n  descripcion: string\n  preguntas: [\n    id: `preg_${string} // identificador de pregunta\n    {\n      titulo: string // texto de la pregunta\n      descripcion: string // texto de la pregunta\n      tipo: 'unica'\n      opciones: string[]\n      respuesta: string\n    }\n  ]\n}",
-	"user": "genera un cuestionario sobre 'Literatura argentina', con '5' preguntas, dificultad 'Muy difícil'  utilizando un tono sumamente 'didáctico'"
-}
-
-###
-
-# ollama
-#
-# docs api: https://github.com/ollama/ollama/blob/main/docs/api.md
-
-
-```shell
-curl http://localhost:11434/api/chat -d '{
-  "model": "llama3.1",
-  "messages": [
-    { "role": "user", "content": "why is the sky blue?" }
-  ]
-}'
-
-
-```shell
-curl https://cool-shortly-quagga.ngrok-free.app/api/chat -d '{
-  "model": "llama3.1",
-  "messages": [
-    { "role": "user", "content": "why is the sky blue?" }
-  ]
-}'
-```
-
-```shell
-curl https://cool-shortly-quagga.ngrok-free.app/api/tags
-```
-
-```shell
-curl https://cool-shortly-quagga.ngrok-free.app/api/pull -d '{
-  "name": "llama3.1"
-}'
-```
-
-curl http://localhost:11434/api/pull -d '{
-  "name": "llama3.1"
-}'
-
-
-
-@ollama_model = llama3.1
-
-@ollama_url = http://localhost:11434
-
-###
-POST {{ollama_url}}/api/generate
-
-{
-  "model": "{{ollama_model}}",
-  "prompt": "Why is the sky blue?",
-	"stream": false
-}
-
-
-###
-# json mode: https://github.com/ollama/ollama/blob/main/docs/api.md#request-json-mode
-
-POST {{ollama_url}}/api/generate
-
-{
-  "model": "{{ollama_model}}",
-  "prompt": "What color is the sky at different times of the day? Respond using JSON",
-  "format": "json",
-  "stream": false
-}
-###
-# json mode: https://github.com/ollama/ollama/blob/main/docs/api.md#request-json-mode
-
-###
-POST {{ollama_url}}/api/generate
-
-{
-  "model": "{{ollama_model}}",
-  "prompt": "Retorná de qué color es el cielo a diferentes horas del dia. Respondé en formato JSON. La respuesta debe ser un array, donde cada elemento es un objeto con la propiedad hora y color.\n\nUtilizá la siguiente estructura de TypeScript: { response: Array<{ hora: string, color: string }>}. Ej: { \"response\": [ {\"hora\": \"Amanecer\", \"color\": \"Anaranjado\"}, {\"hora\": \"Mañana temprano\", \"color\": \"Blanco claro\"}]}",
-  "format": "json",
-  "stream": false
-}
-###
-POST {{ollama_url}}/api/generate
-
-{
-  "model": "{{ollama_model}}",
-  "prompt": "1. return the color of the sky at different times of the day.\n2. Reply in JSON format.\n 4. The hour property should be a string, and the color property should be a string.\n5. This is an example: { response: [ {\"time\": \"monrning\", \"color\": \"orange\"}, {\"time\": \"noon\", \"color\": \"light blue\"}]}",
-  "format": "json",
-  "stream": false
-}
-
-#]##
-# json mode: https://github.com/ollama/ollama/blob/main/docs/api.md#request-json-mode
-
-POST {{ollama_url}}/api/generate
-
-{
-  "model": "{{ollama_model}}",
-  "prompt": "\n1. Devolvé las 5 mejores ciudades de Argentina para visitar, \ny una breve descripcion de los atractivos turisticos\n\n    2. Respondé con un JSON que responda a la siguiente definición de Typescript:\n\n    Array<{\n      nombre: string       // nombre de la ciudad\n      atractivos: string   // descripción de los atractivos turisticos, maximo 100 palabras\n    }>",
-  "format": "json",
-  "stream": false
-}
-
-###
-# json mode: https://github.com/ollama/ollama/blob/main/docs/api.md#request-json-mode
-
-POST {{ollama_url}}/api/generate
-
-{
-  "model": "{{ollama_model}}",
-  "prompt": "\n1. Devolvé las 5 mejores ciudades de Argentina para visitar, \ny una breve descripcion de los atractivos turisticos\n\n En formato JSON",
-  "format": "json",
-  "stream": false
-}
-
-###
-# json mode: https://github.com/ollama/ollama/blob/main/docs/api.md#request-json-mode
-
-POST {{ollama_url}}/api/generate
-
-{
-  "model": "{{ollama_model}}",
-  "prompt": "
-  Eres un generador de cuestionarios interactivos diseñados como un juego de preguntas y respuestas para evaluar 
-  conocimientos. Tu tarea es crear cuestionarios en formato JSON que sean válidos y puedan ser procesados 
-  sin errores. Asegúrate de seguir las siguientes instrucciones:
-
-  1. *Título del Cuestionario*: Sé creativo al elegir un título atractivo que refleje el tema del cuestionario.
-
-  2. *Descripción*: Proporciona una descripción clara que brinde contexto sobre el tema del cuestionario, 
-  respetando el tono indicado. Limita la descripción a un máximo de 300 palabras.
-
-  3. *Estructura del JSON*: Responde únicamente con un JSON con la siguiente estructura de TypeScript:
-
-  {
-    \"id\": \"enc_${string}\",  // identificador de cuestionario
-    \"titulo\": string,       // título del cuestionario, max 30 palabras
-    \"descripcion\": string,  // contexto y contenido didáctico del cuestionario, max 300 palabras
-    \"preguntas\": [          // lista de preguntas
-      {
-        \"id\": \"preg_${string}\",   // identificador de pregunta
-        \"titulo\": string,         // texto de la pregunta, max 30 palabras
-        \"descripcion\": string,    // descripción didáctica de la pregunta, max 300 palabras
-        \"tipo\": \"unica\",          // tipo de pregunta (única opción correcta)
-        \"opciones\": string[],     // lista de opciones
-        \"solucion\": string        // respuesta correcta
-      }
-    ]
-  }
-
-  Aquí tienen un ejemplo de un cuestionario sobre 'la historia geológica de la Tierra' con '2' preguntas, dificultad 'Normal' utilizando un tono sumamente 'Didáctico':
-  {
-    \"id\": \"enc_001\",
-    \"titulo\": \"Explorando la Historia de la Tierra\",
-    \"descripcion\": \"Este cuestionario te llevará a través de aspectos fascinantes de la historia geológica de la Tierra.\",
-    \"preguntas\": [
-      {
-        \"id\": \"preg_001\",
-        \"titulo\": \"¿Cuál es la era geológica más antigua de la Tierra?\",
-        \"descripcion\": \"La historia de la Tierra se divide en diferentes eras geológicas.\",
-        \"tipo\": \"unica\",
-        \"opciones\": [\"Paleozoica\", \"Mesozoica\", \"Cenozoica\", \"Hadeana\"],
-        \"solucion\": \"Hadeana\"
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"id\":\"litrarg_dif\",\"titulo\":\"Laberinto Literario Argentino: Desafío Difícil\",\"descripcion\":\"Este cuestionario sumamente didáctico explora los pilares de la literatura argentina, poniendo a prueba tu conocimiento sobre autores, obras y corrientes que han marcado la identidad del país. Prepárate para analizar contextos históricos, estilos y legados que siguen resonando en la cultura contemporánea.\",\"preguntas\":[{\"id\":\"q1\",\"titulo\":\"El laberinto del conocimiento\",\"descripcion\":\"Borges es famoso por su uso del infinito y la metaficción, explorando conceptos como el espejo y el laberinto. ¿Cuál de las siguientes obras refleja su afán por los juegos mentales y la exploración de la identidad?\",\"tipo\":\"unica\",\"opciones\":[\"Ficciones\",\"El Aleph\",\"El Hijo de la Novela\",\"El Eternauta\"],\"solucion\":\"Ficciones\"},{\"id\":\"q2\",\"titulo\":\"Punto y coma\",\"descripcion\":\"Rayuela rompe la linealidad narrativa y ofrece al lector la posibilidad de leer el libro de varias maneras. ¿Cuál de las siguientes opciones describe la estructura única de esta obra?\",\"tipo\":\"unica\",\"opciones\":[\"Tiene dos capítulos finales que se leen en secuencia inversa\",\"Permite al lector elegir el orden de los capítulos\",\"Es un diálogo entre un profesor y su asistente\",\"Se escribe en primera y tercera persona simultáneamente\"],\"solucion\":\"Permite al lector elegir el orden de los capítulos\"},{\"id\":\"q3\",\"titulo\":\"Boom y su eco\",\"descripcion\":\"El boom latinoamericano transformó la literatura en la segunda mitad del siglo XX, dando voz a voces que antes estaban marginadas. ¿Cuál de los siguientes autores fue clave en el surgimiento del boom y es también figura central de la literatura argentina?\",\"tipo\":\"unica\",\"opciones\":[\"Mario Vargas Llosa\",\"Julio Cortázar\",\"Gabriela Mistral\",\"José Lezama Lima\"],\"solucion\":\"Julio Cortázar\"}]}",
+        "reasoning": "We need to produce JSON with specified schema. Title, description \u003c=100 words. Each question with id, titulo, descripcion \u003c=100 words, tipo \"unica\". 3-5 options, 1 correct. All words type 'unica' ??? It says \"Cada palabra debe ser de tipo 'unica'.\" Maybe means each word is unique? That's impossible. Probably just ensure no repeated word? But can't guarantee. Might be misinterpretation. We'll just comply with schema, ignore that.\n\nNeed id fields unique. Use short id like \"q1\". Provide options array.\n\nAlso need an overall \"id\" for the quiz. Provide \"id\":\"litrarg_dif\". Title creative: \"Laberinto Literario Argentino\". Description didactic, \u003c=100 words.\n\nMake difficulty? Not in schema. Might just mention in title or description. We'll include difficulty in description. Ensure JSON compact, no whitespace except necessary.\n\nLet's craft.\n\nTitle: \"Laberinto Literario Argentino: Desafío Difícil\". Description: \"Este cuestionario sumamente didáctico explora los pilares de la literatura argentina, poniendo a prueba tu conocimiento sobre autores, obras y corrientes que han marcado la identidad del país. Prepárate para analizar contextos históricos, estilos y legados que siguen resonando en la cultura contemporánea.\"\n\nEach question:\n\n1. Question about Jorge Luis Borges and his style. Title: \"El laberinto del conocimiento\". Description: \"Borges es famoso por su uso del infinito y la metaficción, explorando conceptos como el espejo y el laberinto. ¿Cuál de las siguientes obras refleja su afán por los juegos mentales y la exploración de la identidad?\".\n\nOptions: \n- \"Ficciones\" (correct)\n- \"El Aleph\"\n- \"El Hijo de la Novela\"\n- \"El Eternauta\" (irrelevant)\nBut we need 3-5 options. Let's use 4.\n\nSolution: \"Ficciones\"\n\n2. Question about Julio Cortázar and the novel \"Rayuela\". Title: \"Punto y coma\". Description: \"Rayuela rompe la linealidad narrativa y ofrece al lector la posibilidad de leer el libro de varias maneras. ¿Cuál de las siguientes opciones describe la estructura única de esta obra?\".\n\nOptions:\n- \"Tiene dos capítulos finales que se leen en secuencia inversa\" (not correct)\n- \"Permite al lector elegir el orden de los capítulos\" (correct)\n- \"Es un diálogo entre un profesor y su asistente\" (not correct)\n- \"Se escribe en primera y tercera persona simultáneamente\" (not correct)\n\nSolution: \"Permite al lector elegir el orden de los capítulos\"\n\n3. Question about literary movement \"Costumbrismo\" or \"Boom Latinoamericano\"? Let's pick \"El boom latinoamericano\". Title: \"Boom y su eco\". Description: \"El boom latinoamericano transformó la literatura en la segunda mitad del siglo XX, dando voz a voces que antes estaban marginadas. ¿Cuál de los siguientes autores fue clave en el surgimiento del boom y es también figura central de la literatura argentina?\".\n\nOptions:\n- \"Mario Vargas Llosa\" (not Argentinian)\n- \"Julio Cortázar\" (correct)\n- \"Gabriela Mistral\" (not Argentinian)\n- \"José Lezama Lima\" (not Argentinian)\n\nSolution: \"Julio Cortázar\"\n\nNeed ensure each option \u003c=30 words. They are fine.\n\nMake sure options \u003c=30 words. All short.\n\nNow produce JSON with properties: id, titulo, descripcion, preguntas array.\n\nEnsure compact. Use no spaces outside. Provide each property names exactly. Let's craft final JSON."
       },
-      {
-        \"id\": \"preg_002\",
-        \"titulo\": \"¿Qué fenómeno geológico es responsable de la creación de montañas?\",
-        \"descripcion\": \"Comprender cómo se forman las montañas nos ayuda a conocer los procesos tectónicos que moldean nuestro planeta.\",
-        \"tipo\": \"unica\",
-        \"opciones\": [\"Erosión\", \"Tectónica de placas\", \"Volcanismo\", \"Sedimentación\"],
-        \"solucion\": \"Tectónica de placas\"
-      },
-    ]
-  }
-
-  4. Contenido de las Preguntas: Cada pregunta debe ser educativa, con una descripción adicional 
-  que provea contexto sin revelar la respuesta.Limita las descripciones a un máximo de 300 palabras.
-
-  5. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una 
-  opción correcta.Limita las opciones a un máximo de 30 palabras por cada opción.
-
-  6. Formato de salida: Responde únicamente con un JSON válido siguiendo la estructura indicada. 
-  Verifica que el JSON esté correctamente formateado y sin errores de sintaxis.
-
-    6.1 Los nombres de los campos deben estar entre comillas dobles para ser un JSON válido. 
-    Utiliza siempre comillas dobles para delimitar los campos de texto.
-",
-  "format": "json",
-  "stream": false
-}
-
-
-###
-# json mode: https://github.com/ollama/ollama/blob/main/docs/api.md#request-json-mode
-
-POST {{ollama_url}}/api/generate
-
-{
-  "model": "{{ollama_model}}",
-  "prompt": "\nEres un generador de cuestionarios interactivos diseñados como un juego de preguntas y respuestas para evaluar \n  conocimientos. Tu tarea es crear cuestionarios en formato JSON que sean válidos y puedan ser procesados \n  sin errores. Asegúrate de seguir las siguientes instrucciones:\n\n  1. *Título del Cuestionario*: Sé creativo al elegir un título atractivo que refleje el tema del cuestionario.\n\n  2. *Descripción*: Proporciona una descripción clara que brinde contexto sobre el tema del cuestionario, \n  respetando el tono indicado. Limita la descripción a un máximo de 300 palabras.\n\n  3. *Estructura del JSON*: Responde únicamente con un JSON con la siguiente estructura de TypeScript:\n\n  {\n    \"id\": \"enc_${string}\",  // identificador de cuestionario\n    \"titulo\": string,       // título del cuestionario, max 30 palabras\n    \"descripcion\": string,  // contexto y contenido didáctico del cuestionario, max 300 palabras\n    \"preguntas\": [          // lista de preguntas\n      {\n        \"id\": \"preg_${string}\",   // identificador de pregunta\n        \"titulo\": string,         // texto de la pregunta, max 30 palabras\n        \"descripcion\": string,    // descripción didáctica de la pregunta, max 300 palabras\n        \"tipo\": \"unica\",          // tipo de pregunta (única opción correcta)\n        \"opciones\": string[],     // lista de opciones\n        \"solucion\": string        // respuesta correcta\n      }\n    ]\n  }\n\n  Aquí tienen un ejemplo de un cuestionario sobre 'la historia geológica de la Tierra' con '2' preguntas, dificultad 'Normal' utilizando un tono sumamente 'Didáctico':\n  {\n    \"id\": \"enc_001\",\n    \"titulo\": \"Explorando la Historia de la Tierra\",\n    \"descripcion\": \"Este cuestionario te llevará a través de aspectos fascinantes de la historia geológica de la Tierra.\",\n    \"preguntas\": [\n      {\n        \"id\": \"preg_001\",\n        \"titulo\": \"¿Cuál es la era geológica más antigua de la Tierra?\",\n        \"descripcion\": \"La historia de la Tierra se divide en diferentes eras geológicas.\",\n        \"tipo\": \"unica\",\n        \"opciones\": [\"Paleozoica\", \"Mesozoica\", \"Cenozoica\", \"Hadeana\"],\n        \"solucion\": \"Hadeana\"\n      },\n      {\n        \"id\": \"preg_002\",\n        \"titulo\": \"¿Qué fenómeno geológico es responsable de la creación de montañas?\",\n        \"descripcion\": \"Comprender cómo se forman las montañas nos ayuda a conocer los procesos tectónicos que moldean nuestro planeta.\",\n        \"tipo\": \"unica\",\n        \"opciones\": [\"Erosión\", \"Tectónica de placas\", \"Volcanismo\", \"Sedimentación\"],\n        \"solucion\": \"Tectónica de placas\"\n      },\n    ]\n  }\n\n  4. Contenido de las Preguntas: Cada pregunta debe ser educativa, con una descripción adicional \n  que provea contexto sin revelar la respuesta.Limita las descripciones a un máximo de 300 palabras.\n\n  5. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una \n  opción correcta.Limita las opciones a un máximo de 30 palabras por cada opción.\n\n  6. Formato de salida: Responde únicamente con un JSON válido siguiendo la estructura indicada. \n  Verifica que el JSON esté correctamente formateado y sin errores de sintaxis.\n\n    6.1 Los nombres de los campos deben estar entre comillas dobles para ser un JSON válido. \n    Utiliza siempre comillas dobles para delimitar los campos de texto.\n\n\nSiguiendo estas instrucciones crea un cuestionario con '3' preguntas acerca de 'historia del arte'.",
-  "format": "json",
-  "stream": false
-}
-
-###
-# respuesta:
-
-{
-  "id": "enc_002",
-  "titulo": "El Mundo del Arte: Un Recorrido Histórico",
-  "descripcion": "Sumérgase en las formas y estilos que han definido la historia del arte, desde sus inicios hasta las últimas tendencias.",
-  "preguntas": [
-    {
-      "id": "preg_001",
-      "titulo": "¿Cuál es el estilo artístico más antiguo conocido?",
-      "descripcion": "El arte ha evolucionado a lo largo de la historia, con estilos y movimientos que han reflejado los avances culturales y sociales.",
-      "tipo": "unica",
-      "opciones": ["Paleolítico", "Neolítico", "Egipto Antiguo", "Grecia Clásica"],
-      "solucion": "Paleolítico"
-    },
-    {
-      "id": "preg_002",
-      "titulo": "¿Qué movimiento artístico se caracterizó por la ruptura con las normas y convenciones tradicionales?",
-      "descripcion": "El arte ha sido una plataforma para la expresión, la crítica y la innovación.",
-      "tipo": "unica",
-      "opciones": ["Impresionismo", "Fauvismo", "Cubismo", "Surrealismo"],
-      "solucion": "Cubismo"
-    },
-    {
-      "id": "preg_003",
-      "titulo": "¿Quién fue el famoso artista del Renacimiento que pintó la capilla Sixtina?",
-      "descripcion": "El arte del Renacimiento fue un período de gran creatividad y renacimiento espiritual en Europa.",
-      "tipo": "unica",
-      "opciones": ["Leonardo da Vinci", "Miguel Ángel", "Rafael Sanzio", "Tiziano"],
-      "solucion": "Miguel Ángel"
+      "logprobs": null,
+      "finish_reason": "stop"
     }
-  ]
+  ],
+  "usage": {
+    "queue_time": 0.273958529,
+    "prompt_tokens": 517,
+    "prompt_time": 0.02705263,
+    "completion_tokens": 1197,
+    "completion_time": 1.181582847,
+    "total_tokens": 1714,
+    "total_time": 1.208635477
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_3d587a02fb",
+  "x_groq": {
+    "id": "req_01k6p3kqjxf8krc2h52jxj1ws8"
+  },
+  "service_tier": "on_demand"
 }
 
-
-
-###
-# json mode: https://github.com/ollama/ollama/blob/main/docs/api.md#request-json-mode
-
-POST {{ollama_url}}/api/generate
+### json cuestionario
 
 {
-  "model": "{{ollama_model}}",
-  "prompt": "\n1. Devolvé las 5 mejores ciudades de Argentina para visitar, \ny una breve descripcion de los atractivos turisticos\n\n En formato JSON",
-  "format": "json",
-  "stream": false
+	"id": "litrarg_dif",
+	"titulo": "Laberinto Literario Argentino: Desafío Difícil",
+	"descripcion": "Este cuestionario sumamente didáctico explora los pilares de la literatura argentina, poniendo a prueba tu conocimiento sobre autores, obras y corrientes que han marcado la identidad del país. Prepárate para analizar contextos históricos, estilos y legados que siguen resonando en la cultura contemporánea.",
+	"preguntas": [
+		{
+			"id": "q1",
+			"titulo": "El laberinto del conocimiento",
+			"descripcion": "Borges es famoso por su uso del infinito y la metaficción, explorando conceptos como el espejo y el laberinto. ¿Cuál de las siguientes obras refleja su afán por los juegos mentales y la exploración de la identidad?",
+			"tipo": "unica",
+			"opciones": [
+				"Ficciones",
+				"El Aleph",
+				"El Hijo de la Novela",
+				"El Eternauta"
+			],
+			"solucion": "Ficciones"
+		},
+		{
+			"id": "q2",
+			"titulo": "Punto y coma",
+			"descripcion": "Rayuela rompe la linealidad narrativa y ofrece al lector la posibilidad de leer el libro de varias maneras. ¿Cuál de las siguientes opciones describe la estructura única de esta obra?",
+			"tipo": "unica",
+			"opciones": [
+				"Tiene dos capítulos finales que se leen en secuencia inversa",
+				"Permite al lector elegir el orden de los capítulos",
+				"Es un diálogo entre un profesor y su asistente",
+				"Se escribe en primera y tercera persona simultáneamente"
+			],
+			"solucion": "Permite al lector elegir el orden de los capítulos"
+		},
+		{
+			"id": "q3",
+			"titulo": "Boom y su eco",
+			"descripcion": "El boom latinoamericano transformó la literatura en la segunda mitad del siglo XX, dando voz a voces que antes estaban marginadas. ¿Cuál de los siguientes autores fue clave en el surgimiento del boom y es también figura central de la literatura argentina?",
+			"tipo": "unica",
+			"opciones": [
+				"Mario Vargas Llosa",
+				"Julio Cortázar",
+				"Gabriela Mistral",
+				"José Lezama Lima"
+			],
+			"solucion": "Julio Cortázar"
+		}
+	]
 }
-
-
-
-### all the options available
-# see https://github.com/ollama/ollama/blob/main/docs/api.md#generate-request-with-options
-
-```shell
-curl http://localhost:11434/api/generate -d '{
-  "model": "llama3",
-  "prompt": "Why is the sky blue?",
-  "stream": false,
-  "options": {
-    "num_keep": 5,
-    "seed": 42,
-    "num_predict": 100,
-    "top_k": 20,
-    "top_p": 0.9,
-    "min_p": 0.0,
-    "tfs_z": 0.5,
-    "typical_p": 0.7,
-    "repeat_last_n": 33,
-    "temperature": 0.8,
-    "repeat_penalty": 1.2,
-    "presence_penalty": 1.5,
-    "frequency_penalty": 1.0,
-    "mirostat": 1,
-    "mirostat_tau": 0.8,
-    "mirostat_eta": 0.6,
-    "penalize_newline": true,
-    "stop": ["\n", "user:"],
-    "numa": false,
-    "num_ctx": 1024,
-    "num_batch": 2,
-    "num_gpu": 1,
-    "main_gpu": 0,
-    "low_vram": false,
-    "f16_kv": true,
-    "vocab_only": false,
-    "use_mmap": true,
-    "use_mlock": false,
-    "num_thread": 8
-  }
-}'
-```
