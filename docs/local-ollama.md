@@ -41,7 +41,6 @@ $ systemctl status ollama
         CPU: 25ms
 ```
 
-
 ## open-webui
 
 1. instalar e iniciar ollama
