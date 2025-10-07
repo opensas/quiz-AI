@@ -12,20 +12,36 @@ curl -fsSL https://ollama.com/install.sh | sh
 ollama pull llama3.1
 ```
 
-````shell
+or test it with docker
+
+```sh
+# use -d for detached mode
+# docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+docker run -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+
+docker exec -it ollama ollama run llama3.2:1b
+
+docker exec -i ollama ollama pull qwen2:0.5b
+```
+
+test
+
+```sh
+curl http://localhost:11434/api/generate -d '{
+	"model": "llama3.2:1b",
+	"prompt": "contame un chiste corto",
+	"stream": false
+}' | jq -r '.response'
+```
+
+```shell
 curl http://localhost:11434/api/generate -d '{
   "model": "llama3.1",
   "prompt":"Why is the sky blue?"
 }'
 ``
 
-```shell
-curl http://localhost:11434/api/generate -d '{
-  "model": "llama3.1",
-  "prompt":"Why is the sky blue? answer in one sentence",
-	"stream": false
-}'
-````
+```
 
 start service
 

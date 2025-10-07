@@ -24,24 +24,85 @@ Content-Type: application/json
 {
 	"model": "{{model}}",
 	"messages": [
-		{ "role": "system", "content": "Your task it to generate valid json structured data following the passed json_schema and the user content" },
-		{ "role": "user", "content": "Give me a JSON object with id and titulo" }
+		{ "role": "system", "content": "Eres un generador de cuestionarios interactivos diseñados como un juego de preguntas y respuestas para evaluar  conocimientos. Tu tarea es crear cuestionarios en formato JSON especificado en response_format: 1. Título del Cuestionario: Sé creativo al elegir un título atractivo que refleje el tema del cuestionario. 2. Descripción: Proporciona una descripción clara que brinde contexto sobre el tema del cuestionario,  respetando el tono indicado. Limita la descripción a un máximo de 100 palabras. 3. Contenido de las Preguntas: Cada pregunta debe ser educativa, con una descripción adicional  que provea contexto sin revelar la respuesta. Cada palabra debe ser de tipo 'unica'. Limita las descripciones a un máximo de 100 palabras. 4. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una  opción correcta. Limita las opciones a un máximo de 30 palabras por cada opción." },
+		{ "role": "user", "content": "Tu tarea es generar un cuestionario sobre 'Películas', con '3' preguntas, dificultad 'Difícil' utilizando un tono sumamente 'Didáctico'" }
 	],
 	"response_format": {
 		"type": "json_schema",
 		"json_schema": {
-			"name": "quiz_schema",
+			"name": "cuestionario",
 			"schema": {
-				"type": "object",
+				"additionalProperties": false,
 				"properties": {
-					"id": { "type": "string" },
-					"titulo": { "type": "string" }
+					"descripcion": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					},
+					"preguntas": {
+						"items": {
+							"additionalProperties": false,
+							"properties": {
+								"descripcion": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								},
+								"opciones": {
+									"items": {
+										"type": "string"
+									},
+									"type": "array"
+								},
+								"solucion": {
+									"type": "string"
+								},
+								"tipo": {
+									"const": "unica",
+									"type": "string"
+								},
+								"titulo": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"id",
+								"titulo",
+								"descripcion",
+								"tipo",
+								"opciones",
+								"solucion"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"titulo": {
+						"type": "string"
+					}
 				},
-				"required": ["id", "titulo"]
-			}
+				"required": [
+					"id",
+					"titulo",
+					"descripcion",
+					"preguntas"
+				],
+				"type": "object"
+			},
+			"strict": true
 		}
-	}
+	},
+	"stream": false,
+	"temperature": 1,
+	"max_tokens": 4096,
+	"top_p": 1,
+	"frequency_penalty": 0,
+	"presence_penalty": 0
 }
+
+###
 
 
 ###

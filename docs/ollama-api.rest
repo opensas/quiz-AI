@@ -1,11 +1,280 @@
 example hitting local ollama
 
-@ollama_model = llama3.1
+@ollama_model = llama3.2:1b
+# @ollama_model = qwen2:0.5b
 
 @ollama_url = http://localhost:11434
 
+Vendor/Standard	Top-Level Parameter	Structure
+Grok / OpenAI	
+	response_format	json{ "response_format": { "type": "json_schema", "json_schema": { "name": "xxx", "strict": true, "schema": JSON_SCHEMA_HERE } } }
+
+Ollama (OpenAI-Compatible)
+response_format	json{ "response_format": { "type": "json_object", "schema": JSON_SCHEMA_HERE } } 
+
+###
+POST {{ollama_url}}/api/generate
+
+{
+  "model": "{{ollama_model}}",
+  "prompt": "\nContame un chiste corto'.",
+  "stream": false
+}
+
+###
+# structured json
+POST {{ollama_url}}/api/generate
+
+{
+  "model": "{{ollama_model}}",
+  "prompt": "The employee is named Alice and she is 30 years old.",
+  "format": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "The person's name."
+      },
+      "age": {
+        "type": "integer",
+        "description": "The person's age."
+      }
+    },
+    "required": ["name", "age"]
+  },
+  "stream": false,
+  "options": {
+    "temperature": 0.0
+  }
+}
+
 ###
 
+# example migrated from groq, see: https://ollama.com/blog/structured-outputs
+POST {{ollama_url}}/api/chat
+Content-Type: application/json
+
+{
+	"model": "{{ollama_model}}",
+	"messages": [
+		{ "role": "system", "content": "Eres un generador de cuestionarios interactivos diseñados como un juego de preguntas y respuestas para evaluar  conocimientos. Tu tarea es crear cuestionarios en formato JSON especificado en response_format: 1. Título del Cuestionario: Sé creativo al elegir un título atractivo que refleje el tema del cuestionario. 2. Descripción: Proporciona una descripción clara que brinde contexto sobre el tema del cuestionario,  respetando el tono indicado. Limita la descripción a un máximo de 100 palabras. 3. Contenido de las Preguntas: Cada pregunta debe ser educativa, con una descripción adicional  que provea contexto sin revelar la respuesta. Cada palabra debe ser de tipo 'unica'. Limita las descripciones a un máximo de 100 palabras. 4. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una  opción correcta. Limita las opciones a un máximo de 30 palabras por cada opción." },
+		{ "role": "user", "content": "Tu tarea es generar un cuestionario sobre 'Películas', con '3' preguntas, dificultad 'Difícil' utilizando un tono sumamente 'Didáctico'" }
+	],
+	"format": {
+		"additionalProperties": false,
+		"properties": {
+			"descripcion": {
+				"type": "string"
+			},
+			"id": {
+				"type": "string"
+			},
+			"preguntas": {
+				"items": {
+					"additionalProperties": false,
+					"properties": {
+						"descripcion": {
+							"type": "string"
+						},
+						"id": {
+							"type": "string"
+						},
+						"opciones": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						},
+						"solucion": {
+							"type": "string"
+						},
+						"tipo": {
+							"const": "unica",
+							"type": "string"
+						},
+						"titulo": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"id",
+						"titulo",
+						"descripcion",
+						"tipo",
+						"opciones",
+						"solucion"
+					],
+					"type": "object"
+				},
+				"type": "array"
+			},
+			"titulo": {
+				"type": "string"
+			}
+		},
+		"required": [
+			"id",
+			"titulo",
+			"descripcion",
+			"preguntas"
+		],
+		"type": "object"
+	},
+  "stream": false,
+  "options": {
+    "temperature": 0.0
+  }
+}
+
+###
+# example migrated from groq, see: https://ollama.com/blog/structured-outputs
+POST {{ollama_url}}/api/generate
+Content-Type: application/json
+
+{
+	"model": "{{ollama_model}}",
+	"prompt": "Eres un generador de cuestionarios interactivos diseñados como un juego de preguntas y respuestas para evaluar  conocimientos. Tu tarea es crear cuestionarios en formato JSON especificado en response_format: 1. Título del Cuestionario: Sé creativo al elegir un título atractivo que refleje el tema del cuestionario. 2. Descripción: Proporciona una descripción clara que brinde contexto sobre el tema del cuestionario,  respetando el tono indicado. Limita la descripción a un máximo de 100 palabras. 3. Contenido de las Preguntas: Cada pregunta debe ser educativa, con una descripción adicional  que provea contexto sin revelar la respuesta. Cada palabra debe ser de tipo 'unica'. Limita las descripciones a un máximo de 100 palabras. 4. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una  opción correcta. Limita las opciones a un máximo de 30 palabras por cada opción. Tu tarea es generar un cuestionario sobre 'Películas', con '3' preguntas, dificultad 'Difícil' utilizando un tono sumamente 'Didáctico'",
+	"format": {
+		"additionalProperties": false,
+		"properties": {
+			"descripcion": {
+				"type": "string"
+			},
+			"id": {
+				"type": "string"
+			},
+			"preguntas": {
+				"items": {
+					"additionalProperties": false,
+					"properties": {
+						"descripcion": {
+							"type": "string"
+						},
+						"id": {
+							"type": "string"
+						},
+						"opciones": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						},
+						"solucion": {
+							"type": "string"
+						},
+						"tipo": {
+							"const": "unica",
+							"type": "string"
+						},
+						"titulo": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"id",
+						"titulo",
+						"descripcion",
+						"tipo",
+						"opciones",
+						"solucion"
+					],
+					"type": "object"
+				},
+				"type": "array"
+			},
+			"titulo": {
+				"type": "string"
+			}
+		},
+		"required": [
+			"id",
+			"titulo",
+			"descripcion",
+			"preguntas"
+		],
+		"type": "object"
+	},
+  "stream": false,
+  "options": {
+    "temperature": 0.0
+  }
+}
+
+###
+
+# structured json
+POST {{ollama_url}}/api/generate
+
+{
+  "model": "{{ollama_model}}",
+  "prompt": "Eres un generador de cuestionarios interactivos diseñados como un juego de preguntas y respuestas para evaluar  conocimientos. Tu tarea es crear cuestionarios en formato JSON especificado en response_format: 1. Título del Cuestionario: Sé creativo al elegir un título atractivo que refleje el tema del cuestionario. 2. Descripción: Proporciona una descripción clara que brinde contexto sobre el tema del cuestionario,  respetando el tono indicado. Limita la descripción a un máximo de 100 palabras. 3. Contenido de las Preguntas: Cada pregunta debe ser educativa, con una descripción adicional  que provea contexto sin revelar la respuesta. Cada palabra debe ser de tipo 'unica'. Limita las descripciones a un máximo de 100 palabras. 4. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una  opción correcta. Limita las opciones a un máximo de 30 palabras por cada opción. Tu tarea es generar un cuestionario sobre 'Películas', con '3' preguntas, dificultad 'Difícil' utilizando un tono sumamente 'Didáctico'",
+  "format": {
+				"additionalProperties": false,
+				"properties": {
+					"descripcion": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					},
+					"preguntas": {
+						"items": {
+							"additionalProperties": false,
+							"properties": {
+								"descripcion": {
+									"type": "string"
+								},
+								"id": {
+									"type": "string"
+								},
+								"opciones": {
+									"items": {
+										"type": "string"
+									},
+									"type": "array"
+								},
+								"solucion": {
+									"type": "string"
+								},
+								"tipo": {
+									"const": "unica",
+									"type": "string"
+								},
+								"titulo": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"id",
+								"titulo",
+								"descripcion",
+								"tipo",
+								"opciones",
+								"solucion"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"titulo": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"titulo",
+					"descripcion",
+					"preguntas"
+				],
+				"type": "object"
+			},
+  "stream": false,
+  "options": {
+    "temperature": 0.0
+  }
+}
+
+###
 POST {{ollama_url}}/api/generate
 
 {
@@ -126,4 +395,36 @@ POST {{ollama_url}}/api/generate
 ",
   "format": "json",
   "stream": false
+}
+
+###
+
+curl -X POST http://localhost:11434/api/chat -H "Content-Type: application/json" -d '
+
+{
+  "model": "llama3.1",
+  "messages": [{"role": "user", "content": "Tell me about Canada."}],
+  "stream": false,
+  "format": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "capital": {
+        "type": "string"
+      },
+      "languages": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "name",
+      "capital", 
+      "languages"
+    ]
+  }
 }
