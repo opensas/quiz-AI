@@ -3,7 +3,8 @@ example hitting local ollama
 @ollama_model = llama3.2:1b
 # @ollama_model = qwen2:0.5b
 
-@ollama_url = http://localhost:11434
+# @ollama_url = http://localhost:11434
+@ollama_url = http://192.168.226.71:11434
 
 Vendor/Standard	Top-Level Parameter	Structure
 Grok / OpenAI	
@@ -12,41 +13,6 @@ Grok / OpenAI
 Ollama (OpenAI-Compatible)
 response_format	json{ "response_format": { "type": "json_object", "schema": JSON_SCHEMA_HERE } } 
 
-###
-POST {{ollama_url}}/api/generate
-
-{
-  "model": "{{ollama_model}}",
-  "prompt": "\nContame un chiste corto'.",
-  "stream": false
-}
-
-###
-# structured json
-POST {{ollama_url}}/api/generate
-
-{
-  "model": "{{ollama_model}}",
-  "prompt": "The employee is named Alice and she is 30 years old.",
-  "format": {
-    "type": "object",
-    "properties": {
-      "name": {
-        "type": "string",
-        "description": "The person's name."
-      },
-      "age": {
-        "type": "integer",
-        "description": "The person's age."
-      }
-    },
-    "required": ["name", "age"]
-  },
-  "stream": false,
-  "options": {
-    "temperature": 0.0
-  }
-}
 
 ###
 
@@ -125,6 +91,71 @@ Content-Type: application/json
     "temperature": 0.0
   }
 }
+
+###
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Tue, 07 Oct 2025 21:18:50 GMT
+Connection: close
+Transfer-Encoding: chunked
+
+{
+  "model": "llama3.2:1b",
+  "created_at": "2025-10-07T21:18:50.794027063Z",
+  "message": {
+    "role": "assistant",
+    "content": "{\"descripcion\": \"¡Bienvenido al Cuestionario de Películas! En este juego, debes demostrar tus conocimientos sobre las películas más emblemáticas del mundo. ¡Prepárate para desafiar tus habilidades y ganar premios!\", \"id\": \"You are about to play a game of questions and answers about movies\", \"preguntas\": [\n{\"descripcion\": \"¿Cuál es el título de la película de 1984 que se convirtió en un clásico?\", \"id\": \"\",\n\"opciones\": [\n\"El Padrino\",\n\"La Brujera Roja\",\n\"El Cuarto ato\"\n],\n\"solucion\": \"El Padrino\",\n\"tipo\": \"unica\",\n\"titulo\": \"¿Cuál es el título de la película de 1984 que se convirtió en un clásico?\"\n},\n{\"descripcion\": \"¿Quién fue el actor que interpretó a Luke Skywalker en las películas de Star Wars?\", \"id\": \"\",\n\"opciones\": [\n\"Mark Hamill\",\n\"Darth Vader\",\n\"Harrison Ford\"\n],\n\"solucion\": \"Mark Hamill\",\n\"tipo\": \"unica\",\n\"titulo\": \"¿Quién fue el actor que interpretó a Luke Skywalker en las películas de Star Wars?\"\n},\n{\"descripcion\": \"¿Cuál es la película de 1994 que ganó tres Oscars?\", \"id\": \"\",\n\"opciones\": [\n\"A Beautiful Mind\",\n\"Crouching Tiger, Hidden Dragon\",\n\"El Padrino\"\n],\n\"solucion\": \"A Beautiful Mind\",\n\"tipo\": \"unica\",\n\"titulo\": \"¿Cuál es la película de 1994 que ganó tres Oscars?\"\n},\n{\"descripcion\": \"¿Quién fue el director de la película de 2001: A Space Odyssey?\", \"id\": \"\",\n\"opciones\": [\n\"Stanley Kubrick\",\n\"Steven Spielberg\",\n\"Christopher Nolan\"\n],\n\"solucion\": \"Stanley Kubrick\",\n\"tipo\": \"unica\",\n\"titulo\": \"¿Quién fue el director de la película de 2001: A Space Odyssey?\"\n}],\"titulo\": \"¡Bienvenido al Cuestionario de Películas!\"}"
+  },
+  "done": true,
+  "done_reason": "stop",
+  "total_duration": 10963703064,
+  "load_duration": 2447823952,
+  "prompt_eval_count": 303,
+  "prompt_eval_duration": 620904442,
+  "eval_count": 492,
+  "eval_duration": 7891793736
+}
+
+###
+
+###
+POST {{ollama_url}}/api/generate
+
+{
+  "model": "{{ollama_model}}",
+  "prompt": "\nContame un chiste corto'.",
+  "stream": false
+}
+
+###
+# structured json
+POST {{ollama_url}}/api/generate
+
+{
+  "model": "{{ollama_model}}",
+  "prompt": "The employee is named Alice and she is 30 years old.",
+  "format": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "The person's name."
+      },
+      "age": {
+        "type": "integer",
+        "description": "The person's age."
+      }
+    },
+    "required": ["name", "age"]
+  },
+  "stream": false,
+  "options": {
+    "temperature": 0.0
+  }
+}
+
+
 
 ###
 # example migrated from groq, see: https://ollama.com/blog/structured-outputs
