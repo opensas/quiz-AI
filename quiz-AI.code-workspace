@@ -7,12 +7,14 @@
 	"settings": {
 		"cSpell.words": [
 			"animás",
+			"chatcmpl",
 			"codigo",
 			"configuracion",
 			"descripcion",
 			"dotenv",
 			"groq",
 			"kimi",
+			"logprobs",
 			"mirostat",
 			"moonshotai",
 			"ollama",
