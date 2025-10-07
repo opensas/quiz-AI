@@ -2,6 +2,8 @@ import type { Encuesta } from '$lib/types';
 
 import { oneLine } from 'common-tags';
 
+import type { ApiChatBody, JSONSchema } from '../api/ai';
+
 export const configuration = {
 	id: 'enc_001',
 	codigo: 'configuracion-cuestionario',
@@ -52,7 +54,6 @@ export const configuration = {
 } satisfies Encuesta;
 
 const SYSTEM = oneLine`
-
 	Eres un generador de cuestionarios interactivos diseñados como un juego de preguntas y respuestas para evaluar 
 	conocimientos. Tu tarea es crear cuestionarios en formato JSON especificado en response_format:
 
@@ -65,14 +66,18 @@ const SYSTEM = oneLine`
 	que provea contexto sin revelar la respuesta. Cada palabra debe ser de tipo 'unica'.
 	Limita las descripciones a un máximo de 100 palabras.
 
-	4. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una 
+	4. Título y descripcion de las preguntas: Asegúrate de que la respuesta no está contenida ni pueda ser deducida 
+	a partir del título o la descripción de la pregunta.
+	La descripción debe ser clara y estar correctamente redactada.
+
+	5. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una 
 	opción correcta. Limita las opciones a un máximo de 30 palabras por cada opción.
 `;
 
 const USER =
 	"Tu tarea es generar un cuestionario sobre '{tema}', con '{preguntas}' preguntas, dificultad '{dificultad}' utilizando un tono sumamente '{tono}'";
 
-const GENERATE_URL = '/api/generate';
+const GENERATE_URL = '/api/chat';
 
 export async function generateCuestionario(
 	tema = 'un tema a tu elección',
@@ -88,14 +93,28 @@ export async function generateCuestionario(
 		.replace('{tono}', tono)
 		.replace('{dificultad}', dificultad);
 
-	const body = JSON.stringify({ system: SYSTEM, user, schema: RESPONSE_JSON_SCHEMA });
+	// openai compatible chat completion api
+	const body = {
+		messages: [
+			{ role: 'system', content: SYSTEM },
+			{ role: 'user', content: user }
+		],
+		response_format: {
+			type: 'json_schema',
+			json_schema: {
+				name: 'cuestionario',
+				strict: true,
+				schema: CUESTIONARIO_JSON_SCHEMA
+			}
+		}
+	} satisfies ApiChatBody;
 
-	// console.log('!!! about to hit /api/generate', { body });
+	// console.log(`[quiz-AI] about to hit ${GENERATE_URL}`, { body });
 
 	const response = await fetch(GENERATE_URL, {
 		headers: { 'Content-Type': 'application/json' },
 		method: 'POST',
-		body
+		body: JSON.stringify(body)
 	});
 
 	if (!response.ok) {
@@ -106,41 +125,37 @@ export async function generateCuestionario(
 	const json = await response.json();
 
 	const content = json.choices[0].message.content;
-	console.log('!!! response from /api/generate, about to parse encuesta', { content });
+	// console.log(`[quiz-AI] response from ${GENERATE_URL}, about to parse encuesta`, { content });
 
 	return JSON.parse(content) as Encuesta;
 }
 
-const RESPONSE_JSON_SCHEMA = {
-	name: 'cuestionario',
-	strict: true,
-	schema: {
-		type: 'object',
-		additionalProperties: false,
-		required: ['id', 'titulo', 'descripcion', 'preguntas'],
-		properties: {
-			id: { type: 'string' },
-			titulo: { type: 'string' },
-			descripcion: { type: 'string' },
-			preguntas: {
-				type: 'array',
-				items: {
-					type: 'object',
-					additionalProperties: false,
-					required: ['id', 'titulo', 'descripcion', 'tipo', 'opciones', 'solucion'],
-					properties: {
-						id: { type: 'string' },
-						titulo: { type: 'string' },
-						descripcion: { type: 'string' },
-						tipo: { type: 'string', const: 'unica' },
-						opciones: {
-							type: 'array',
-							items: { type: 'string' }
-						},
-						solucion: { type: 'string' }
-					}
+const CUESTIONARIO_JSON_SCHEMA = {
+	type: 'object',
+	additionalProperties: false,
+	required: ['id', 'titulo', 'descripcion', 'preguntas'],
+	properties: {
+		id: { type: 'string' },
+		titulo: { type: 'string' },
+		descripcion: { type: 'string' },
+		preguntas: {
+			type: 'array',
+			items: {
+				type: 'object',
+				additionalProperties: false,
+				required: ['id', 'titulo', 'descripcion', 'tipo', 'opciones', 'solucion'],
+				properties: {
+					id: { type: 'string' },
+					titulo: { type: 'string' },
+					descripcion: { type: 'string' },
+					tipo: { type: 'string', const: 'unica' },
+					opciones: {
+						type: 'array',
+						items: { type: 'string' }
+					},
+					solucion: { type: 'string' }
 				}
 			}
 		}
 	}
-};
+} satisfies JSONSchema;

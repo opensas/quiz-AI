@@ -28,13 +28,15 @@
 				status = 'play';
 				return;
 			} catch (e) {
-				console.error('!!! error al generar respuesta', { attempt, e });
+				console.error('[quiz-AI] error al generar respuesta', { attempt, e });
 				attempt++;
 			}
 		}
 		status = 'error';
 	}
 
+	// allow to configure the quiz from the querystring
+	// ie: http://localhost:3000/quiz?tema=historia argentina&preguntas=4&dificultad=difícil&tono=didáctico&play=1
 	function init() {
 		const q = data.query;
 		if (q.tema) configuration.preguntas[0].respuesta = q.tema;
