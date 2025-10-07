@@ -7,7 +7,8 @@ import {
 	AI_PROVIDERS,
 	type ApiChatBody,
 	DEFAULT_EXTRA_PARAMS,
-	groqToOllamaChat
+	groqToOllamaChat,
+	ollamaToGroqResponse
 } from '../ai';
 
 export const POST = async ({ request }) => {
@@ -100,9 +101,10 @@ export const POST = async ({ request }) => {
 				console.error(err);
 				throw new Error('Failed to create completion', err);
 			}
+			const ollamaResponse = await response.json();
+			const groqResponse = ollamaToGroqResponse(ollamaResponse);
 
-			// 'Content-Type': 'text/event-stream'
-			return new Response(response.body, {
+			return new Response(JSON.stringify(groqResponse), {
 				headers: { 'Content-Type': 'application/json' }
 			});
 		}
