@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 
-import { AI_KEY, AI_MODEL, AI_URL } from '$env/static/private';
+import { AI_KEY, AI_MODEL, AI_PROVIDER, AI_URL } from '$env/static/private';
 
 import {
 	AI_DEFAULTS,
@@ -18,7 +18,7 @@ export const POST = async ({ request }) => {
 
 		const { provider: _provider, url: _url, key: _key, ...groqBody } = body;
 
-		const provider = _provider || AI_DEFAULTS.PROVIDER;
+		const provider = _provider || AI_PROVIDER || AI_DEFAULTS.PROVIDER;
 
 		if (!AI_PROVIDERS.includes(provider)) {
 			throw new Error(
@@ -45,12 +45,14 @@ export const POST = async ({ request }) => {
 			const model = groqBody.model || AI_MODEL || AI_DEFAULTS.GROQ.MODEL;
 
 			const body = {
-				...DEFAULT_EXTRA_PARAMS,
+				// ...DEFAULT_EXTRA_PARAMS,
 				...groqBody,
 				model // override model
 			};
 			console.log('[quiz-AI] groq url and model:', { url, model });
 			console.log('[quiz-AI] groq body:', { body });
+
+			console.log('[quiz-AI] groq stringify body:', JSON.stringify(body));
 
 			const response = await fetch(url, {
 				headers: {
