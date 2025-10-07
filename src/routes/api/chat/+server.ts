@@ -2,66 +2,55 @@ import { error } from '@sveltejs/kit';
 
 import { AI_KEY, AI_MODEL, AI_URL } from '$env/static/private';
 
-import { AI_DEFAULTS, type AI_Provider, AI_PROVIDERS } from './ai';
-
-type Body = {
-	provider?: AI_Provider;
-	url?: string;
-	key?: string;
-	model?: string;
-	system?: string;
-	user?: string;
-	schema?: object;
-};
+import {
+	AI_DEFAULTS,
+	AI_PROVIDERS,
+	type ApiChatBody,
+	DEFAULT_EXTRA_PARAMS,
+	groqToOllamaChat
+} from '../ai';
 
 export const POST = async ({ request }) => {
-	const data = (await request.json()) as Body;
+	const body = (await request.json()) as ApiChatBody;
 
 	try {
-		if (!data) throw new Error('Request data missing');
+		if (!body) throw new Error('Request body missing');
 
-		const provider = data?.provider || AI_DEFAULTS.PROVIDER;
+		const { provider: _provider, url: _url, key: _key, ...groqBody } = body;
+
+		const provider = _provider || AI_DEFAULTS.PROVIDER;
 
 		if (!AI_PROVIDERS.includes(provider)) {
 			throw new Error(
 				`Provider ${provider} not supported, supported providers: ${AI_PROVIDERS.join(', ')}`
 			);
 		}
-		const system = data?.system || '';
-		const user = data?.user || '';
 
-		if (!system && !user) throw new Error('No system not user messages specified');
+		// validate messages
+		const messages = groqBody.messages;
+		if (!messages) throw new Error('No messages specified');
 
-		const schema = data?.schema || null;
+		if (!Array.isArray(messages)) throw new Error('Messages must be an array');
+		if (messages.length <= 0) throw new Error('Messages array is empty');
+		if (!messages.some((m) => (m.role === 'system' || m.role === 'user') && m.content)) {
+			throw new Error('No system or user message with content found');
+		}
 
 		if (provider === 'groq') {
-			const url = data?.url || AI_URL || AI_DEFAULTS.GROQ.URL;
-			const key = data?.key || AI_KEY;
+			const url = _url || AI_URL || AI_DEFAULTS.GROQ.URL;
+			const key = _key || AI_KEY;
 
-			if (!key) throw new Error('OPENAI_KEY env var not set');
-			const model = data?.model || AI_MODEL || AI_DEFAULTS.GROQ.MODEL;
+			if (!key) throw new Error('groq api key missing. Check AI_KEY env var');
+			// assign default model if not specified
+			const model = groqBody.model || AI_MODEL || AI_DEFAULTS.GROQ.MODEL;
 
-			const messages = [];
-
-			if (system) messages.push({ role: 'system', content: system });
-			if (user) messages.push({ role: 'user', content: user });
-
-			const response_format = schema
-				? { type: 'json_schema', json_schema: schema }
-				: { type: 'text' };
-
-			const body = JSON.stringify({
-				model,
-				messages,
-				stream: false,
-				temperature: 1,
-				max_tokens: 4096,
-				top_p: 1,
-				frequency_penalty: 0,
-				presence_penalty: 0,
-				response_format
-			});
-			// console.log('!!!', { body });
+			const body = {
+				...DEFAULT_EXTRA_PARAMS,
+				...groqBody,
+				model // override model
+			};
+			console.log('[quiz-AI] groq url and model:', { url, model });
+			console.log('[quiz-AI] groq body:', { body });
 
 			const response = await fetch(url, {
 				headers: {
@@ -69,7 +58,7 @@ export const POST = async ({ request }) => {
 					'Content-Type': 'application/json'
 				},
 				method: 'POST',
-				body
+				body: JSON.stringify(body)
 			});
 
 			if (!response.ok) {
@@ -85,11 +74,35 @@ export const POST = async ({ request }) => {
 		}
 
 		if (provider === 'ollama') {
-			const url = AI_URL || AI_DEFAULTS.OLLAMA.URL;
-			const model = data?.model || AI_MODEL || AI_DEFAULTS.OLLAMA.MODEL;
+			const url = _url || AI_URL || AI_DEFAULTS.OLLAMA.URL;
+			const model = groqBody.model || AI_MODEL || AI_DEFAULTS.OLLAMA.MODEL;
 
-			console.log('ollama', { url, model });
-			// #TODO - ollama support
+			const body = groqToOllamaChat({
+				...DEFAULT_EXTRA_PARAMS,
+				...groqBody,
+				model // override model
+			});
+			console.log('[quiz-AI] ollama url and model:', { url, model });
+			console.log('[quiz-AI] ollama body:', { body });
+
+			const response = await fetch(url, {
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				method: 'POST',
+				body: JSON.stringify(body)
+			});
+
+			if (!response.ok) {
+				const err = await response.json();
+				console.error(err);
+				throw new Error('Failed to create completion', err);
+			}
+
+			// 'Content-Type': 'text/event-stream'
+			return new Response(response.body, {
+				headers: { 'Content-Type': 'application/json' }
+			});
 		}
 	} catch (err) {
 		console.error(err);
