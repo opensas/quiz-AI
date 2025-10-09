@@ -1,8 +1,17 @@
 {
-	"name": "quiz-AI",
+	"name": "quiz-ai",
 	"version": "0.0.1",
 	"private": true,
-	"packageManager": "pnpm@9.6.0",
+	"type": "module",
+	"packageManager": "pnpm@9.15.1",
+	"engines": {
+		"node": ">=22.18.0 <23"
+	},
+	"volta": {
+		"node": "22.18.0",
+		"pnpm": "9.15.1",
+		"npm": "11.5.2"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -42,7 +51,6 @@
 		"vite": "^5.0.3",
 		"vitest": "^2.0.0"
 	},
-	"type": "module",
 	"dependencies": {
 		"bits-ui": "^0.21.13",
 		"clsx": "^2.1.1",
