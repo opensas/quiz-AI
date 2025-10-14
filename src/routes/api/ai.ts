@@ -10,7 +10,7 @@ export const AI_DEFAULTS = {
 	},
 	OLLAMA: {
 		URL: 'http://localhost:11434/api/chat',
-		MODEL: 'llama3.2:1b'
+		MODEL: 'llama3.2:3b'
 	}
 } as const;
 
