@@ -10,7 +10,7 @@ export const AI_DEFAULTS = {
 	},
 	OLLAMA: {
 		URL: 'http://localhost:11434/api/chat',
-		MODEL: 'llama3.2:1b'
+		MODEL: 'llama3.2:3b'
 	}
 } as const;
 
@@ -134,3 +134,118 @@ export function groqToOllamaGenerate(groqBody: GroqChatBody): OllamaGenerateBody
 
 	return { prompt, ...rest } satisfies OllamaGenerateBody;
 }
+
+type GroqChatResponse = {
+	id: string;
+	object: 'chat.completion';
+	created: number;
+	model: string;
+	choices: Array<{
+		index: number;
+		message: { role: 'system' | 'user'; content: string };
+		finish_reason: string;
+	}>;
+	usage: {
+		prompt_tokens?: number;
+		completion_tokens?: number;
+		total_tokens?: number;
+		load_time?: number;
+		prompt_time?: number;
+		completion_time?: number;
+		total_time?: number;
+	};
+	system_fingerprint?: string;
+};
+
+type OllamaChatResponse = {
+	model: string;
+	created_at: string;
+	message: { role: 'system' | 'user'; content: string };
+	done_reason: string;
+	total_duration?: number;
+	load_duration?: number;
+	prompt_eval_count?: number;
+	prompt_eval_duration?: number;
+	eval_count?: number;
+	eval_duration?: number;
+};
+
+export function ollamaToGroqResponse(ollama: OllamaChatResponse): GroqChatResponse {
+	const nsToSec = (n?: number) => (n ? n / 1e9 : undefined);
+
+	return {
+		id: `chatcmpl-${crypto.randomUUID()}`,
+		object: 'chat.completion',
+		created: Math.floor(new Date(ollama.created_at).getTime() / 1000),
+		model: ollama.model,
+		choices: [{ index: 0, message: ollama.message, finish_reason: ollama.done_reason }],
+		usage: {
+			prompt_tokens: ollama.prompt_eval_count,
+			completion_tokens: ollama.eval_count,
+			total_tokens: (ollama.prompt_eval_count ?? 0) + (ollama.eval_count ?? 0),
+			load_time: nsToSec(ollama.load_duration),
+			prompt_time: nsToSec(ollama.prompt_eval_duration),
+			completion_time: nsToSec(ollama.eval_duration),
+			total_time: nsToSec(ollama.total_duration)
+		},
+		system_fingerprint: 'fp_local_ollama'
+	};
+}
+
+/*
+OllamaChatResponse example
+{
+	"model": "llama3.2:1b",
+	"created_at": "2025-10-07T21:18:50.794027063Z",
+	"message": {
+		"role": "assistant",
+		"content": "..."
+	},
+	"done": true,
+	"done_reason": "stop",
+	"total_duration": 10963703064,
+	"load_duration": 2447823952,
+	"prompt_eval_count": 303,
+	"prompt_eval_duration": 620904442,
+	"eval_count": 492,
+	"eval_duration": 7891793736
+}
+*/
+
+/*
+GroqChatResponse example
+
+const x = {
+	"id": "chatcmpl-21a0f917-0673-4137-9adc-d6c3cbe644de",
+	"object": "chat.completion",
+	"created": 1759872768,
+	"model": "openai/gpt-oss-20b",
+	"choices": [
+		{
+			"index": 0,
+			"message": {
+				"role": "assistant",
+				"content": "...",
+				"reasoning": "We need to produce JSON ..."
+			},
+			"logprobs": null,
+			"finish_reason": "stop"
+		}
+	],
+	"usage": {
+		"queue_time": 0.274291152,
+		"prompt_tokens": 516,
+		"prompt_time": 0.026907889,
+		"completion_tokens": 1737,
+		"completion_time": 1.715025434,
+		"total_tokens": 2253,
+		"total_time": 1.741933323
+	},
+	"usage_breakdown": null,
+	"system_fingerprint": "fp_c5a89987dc",
+	"x_groq": {
+		"id": "req_0...."
+	},
+	"service_tier": "on_demand"
+}
+*/

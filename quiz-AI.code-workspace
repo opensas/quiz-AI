@@ -7,12 +7,14 @@
 	"settings": {
 		"cSpell.words": [
 			"animás",
+			"chatcmpl",
 			"codigo",
 			"configuracion",
 			"descripcion",
 			"dotenv",
 			"groq",
 			"kimi",
+			"logprobs",
 			"mirostat",
 			"moonshotai",
 			"ollama",
@@ -21,12 +23,15 @@
 			"openai",
 			"OPENAI",
 			"preg",
+			"Previsualizar",
 			"querés",
 			"qwen",
+			"shadcn",
 			"solucion",
 			"Sorprendeme",
 			"unica",
 			"vercel",
+			"volta",
 			"webui",
 			"youtube"
 		]
