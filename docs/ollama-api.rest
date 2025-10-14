@@ -1,6 +1,7 @@
 example hitting local ollama
 
-# @ollama_model = llama3.2:1b # no funciona bien
+# no funciona bien
+# @ollama_model = llama3.2:1b 
 @ollama_model = llama3.2:3b
 # @ollama_model = qwen2.5:1.5b
 
@@ -8,21 +9,12 @@ example hitting local ollama
 @ollama_url = http://localhost:11434
 # @ollama_url = http://192.168.226.71:11434
 
-Vendor/Standard	Top-Level Parameter	Structure
-Grok / OpenAI	
-	response_format	json{ "response_format": { "type": "json_schema", "json_schema": { "name": "xxx", "strict": true, "schema": JSON_SCHEMA_HERE } } }
-
-Ollama (OpenAI-Compatible)
-response_format	json{ "response_format": { "type": "json_object", "schema": JSON_SCHEMA_HERE } } 
-
-
 ###
 GET {{ollama_url}}/api/tags
 Content-Type: application/json
 
 ###
-
-# example migrated from groq, see: https://ollama.com/blog/structured-outputs
+# ejemplo de llamada API de ollama desde quiz-AI
 POST {{ollama_url}}/api/chat
 Content-Type: application/json
 
@@ -108,111 +100,6 @@ Content-Type: application/json
     "repeat_penalty": 1.2000000000000002
   }
 }
-
-###
-POST {{ollama_url}}/api/chat
-Content-Type: application/json
-
-{
-	"model": "{{ollama_model}}",
-	"messages": [
-		{ "role": "system", "content": "Eres un generador de cuestionarios interactivos diseñados como un juego de preguntas y respuestas para evaluar  conocimientos. Tu tarea es crear cuestionarios en formato JSON especificado en response_format: 1. Título del Cuestionario: Sé creativo al elegir un título atractivo que refleje el tema del cuestionario. 2. Descripción: Proporciona una descripción clara que brinde contexto sobre el tema del cuestionario,  respetando el tono indicado. Limita la descripción a un máximo de 100 palabras. 3. Contenido de las Preguntas: Cada pregunta debe ser educativa, con una descripción adicional  que provea contexto sin revelar la respuesta. Cada palabra debe ser de tipo 'unica'. Limita las descripciones a un máximo de 100 palabras. 4. Respuestas y Opciones: Incluye entre 3 y 5 opciones distintas para cada pregunta, con solo una  opción correcta. Limita las opciones a un máximo de 30 palabras por cada opción." },
-		{ "role": "user", "content": "Tu tarea es generar un cuestionario sobre 'Películas', con '3' preguntas, dificultad 'Difícil' utilizando un tono sumamente 'Didáctico'" }
-	],
-	"format": {
-		"additionalProperties": false,
-		"properties": {
-			"descripcion": {
-				"type": "string"
-			},
-			"id": {
-				"type": "string"
-			},
-			"preguntas": {
-				"items": {
-					"additionalProperties": false,
-					"properties": {
-						"descripcion": {
-							"type": "string"
-						},
-						"id": {
-							"type": "string"
-						},
-						"opciones": {
-							"items": {
-								"type": "string"
-							},
-							"type": "array"
-						},
-						"solucion": {
-							"type": "string"
-						},
-						"tipo": {
-							"const": "unica",
-							"type": "string"
-						},
-						"titulo": {
-							"type": "string"
-						}
-					},
-					"required": [
-						"id",
-						"titulo",
-						"descripcion",
-						"tipo",
-						"opciones",
-						"solucion"
-					],
-					"type": "object"
-				},
-				"type": "array"
-			},
-			"titulo": {
-				"type": "string"
-			}
-		},
-		"required": [
-			"id",
-			"titulo",
-			"descripcion",
-			"preguntas"
-		],
-		"type": "object"
-	},
-  "stream": false,
-  "options": {
-    "temperature": 0.0
-  }
-}
-
-###
-
-### response:
-
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-Date: Tue, 14 Oct 2025 19:14:37 GMT
-Connection: close
-Transfer-Encoding: chunked
-
-{
-  "model": "llama3.2:3b",
-  "created_at": "2025-10-14T19:14:37.013901721Z",
-  "message": {
-    "role": "assistant",
-    "content": "{\n  \"descripcion\": \"Este cuestionario está diseñado para evaluar tus conocimientos sobre películas de manera objetiva y didáctica. Aprende a analizar y comprender las diferentes categorías cinematográficas, géneros y estilos de dirección.\",\n  \"id\": \"Películas\",\n  \"preguntas\": [\n    {\n      \"descripcion\": \"¿Cuál es el nombre del director de la película '2001: Una odisea espacial' (1968) que se considera una de las obras maestras del cine científico?\",\n      \"id\": \"pregunta1\",\n      \"opciones\": [\n        \"Stanley Kubrick\",\n        \"Steven Spielberg\",\n        \"Francis Ford Coppola\",\n        \"Martin Scorsese\"\n      ],\n      \"solucion\": \"Stanley Kubrick\"\n    ,\n    \"tipo\": \"unica\"\n    ,\n    \"titulo\": \"¿Quién es el director de '2001: Una odisea espacial'?\"\n    },\n    {\n      \"descripcion\": \"¿Cuál es el nombre del actor que interpretó a Luke Skywalker en la trilogía original de 'Star Wars' (1977-1983)?\",\n      \"id\": \"pregunta2\",\n      \"opciones\": [\n        \"Mark Hamill\",\n        \"Harrison Ford\",\n        \"Carrie Fisher\",\n        \"Alec Guinness\"\n      ],\n      \"solucion\": \"Mark Hamill\"\n    ,\n    \"tipo\": \"unica\"\n    ,\n    \"titulo\": \"¿Quién es el actor que interpretó a Luke Skywalker?\"\n    },\n    {\n      \"descripcion\": \"¿Cuál es el nombre del director de la película 'El Padrino' (1972) que se considera una de las mejores películas de todos los tiempos?\",\n      \"id\": \"pregunta3\",\n      \"opciones\": [\n        \"Francis Ford Coppola\",\n        \"Martin Scorsese\",\n        \"Steven Spielberg\",\n        \"Quentin Tarantino\"\n      ],\n      \"solucion\": \"Francis Ford Coppola\"\n    ,\n    \"tipo\": \"unica\"\n    ,\n    \"titulo\": \"¿Quién es el director de 'El Padrino'?\"\n    }\n  ]\n  , \"titulo\": \"Películas: Un viaje por la historia del cine\" }\n "
-  },
-  "done": true,
-  "done_reason": "stop",
-  "total_duration": 15967113948,
-  "load_duration": 69174026,
-  "prompt_eval_count": 303,
-  "prompt_eval_duration": 59830009,
-  "eval_count": 501,
-  "eval_duration": 15836768422
-}
-
-###
 
 ###
 POST {{ollama_url}}/api/generate
@@ -329,7 +216,7 @@ POST {{ollama_url}}/api/generate
 }
 
 ###
-
+# structured output from command line
 curl -X POST http://localhost:11434/api/chat -H "Content-Type: application/json" -d '
 
 {
