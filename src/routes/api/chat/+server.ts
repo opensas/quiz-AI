@@ -1,4 +1,4 @@
-import { error } from '@sveltejs/kit';
+import { error, type RequestEvent } from '@sveltejs/kit';
 
 import { AI_KEY, AI_MODEL, AI_PROVIDER, AI_URL } from '$env/static/private';
 
@@ -8,27 +8,28 @@ import {
 	type ApiChatBody,
 	DEFAULT_EXTRA_PARAMS,
 	groqToOllamaChat,
+	isAIProvider,
 	ollamaToGroqResponse
 } from '../ai';
 
-export const POST = async ({ request }) => {
+export const POST = async ({ request }: RequestEvent) => {
 	const body = (await request.json()) as ApiChatBody;
 
 	try {
 		if (!body) throw new Error('Request body missing');
 
-		const { provider: _provider, url: _url, key: _key, ...groqBody } = body;
+		const { provider: _provider, url: _url, key: _key, ...reqBody } = body;
 
 		const provider = _provider || AI_PROVIDER || AI_DEFAULTS.PROVIDER;
 
-		if (!AI_PROVIDERS.includes(provider)) {
+		if (!isAIProvider(provider)) {
 			throw new Error(
 				`Provider ${provider} not supported, supported providers: ${AI_PROVIDERS.join(', ')}`
 			);
 		}
 
 		// validate messages
-		const messages = groqBody.messages;
+		const messages = reqBody.messages;
 		if (!messages) throw new Error('No messages specified');
 
 		if (!Array.isArray(messages)) throw new Error('Messages must be an array');
@@ -43,11 +44,11 @@ export const POST = async ({ request }) => {
 
 			if (!key) throw new Error('groq api key missing. Check AI_KEY env var');
 			// assign default model if not specified
-			const model = groqBody.model || AI_MODEL || AI_DEFAULTS.GROQ.MODEL;
+			const model = reqBody.model || AI_MODEL || AI_DEFAULTS.GROQ.MODEL;
 
 			const body = {
 				// ...DEFAULT_EXTRA_PARAMS,
-				...groqBody,
+				...reqBody,
 				model // override model
 			};
 			console.log('[quiz-AI] groq url and model:', { url, model });
@@ -78,11 +79,11 @@ export const POST = async ({ request }) => {
 
 		if (provider === 'ollama') {
 			const url = _url || AI_URL || AI_DEFAULTS.OLLAMA.URL;
-			const model = groqBody.model || AI_MODEL || AI_DEFAULTS.OLLAMA.MODEL;
+			const model = reqBody.model || AI_MODEL || AI_DEFAULTS.OLLAMA.MODEL;
 
 			const body = groqToOllamaChat({
 				...DEFAULT_EXTRA_PARAMS,
-				...groqBody,
+				...reqBody,
 				model // override model
 			});
 			console.log('[quiz-AI] ollama url and model:', { url, model });

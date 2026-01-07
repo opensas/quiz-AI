@@ -1,4 +1,4 @@
-export const AI_PROVIDERS = ['groq', 'ollama'];
+export const AI_PROVIDERS = ['groq', 'ollama'] as const;
 
 export type AI_Provider = (typeof AI_PROVIDERS)[number];
 
@@ -35,8 +35,8 @@ export const DEFAULT_EXTRA_PARAMS = {
 
 export type ApiChatBody = {
 	provider?: AI_Provider;
-	url?: string;
-	key?: string;
+	url?: string; // optional api URL, by default it will use the one in .env
+	key?: string; // optional api key, by default it will use the one in .env
 } & Omit<GroqChatBody, 'model'> & {
 		model?: string; // model is optional in APIChatBody, it has a default value
 	};
@@ -48,10 +48,12 @@ export type JSONSchema = {
 	type: 'object' | 'string';
 };
 
+type ChatRole = 'system' | 'user' | 'assistant';
+
 // openai api compatible body
 type GroqChatBody = {
 	model: string;
-	messages: { role: 'system' | 'user'; content: string }[];
+	messages: { role: ChatRole; content: string }[];
 	response_format?: {
 		type: 'json_schema' | 'json_object' | 'text';
 		json_schema: {
@@ -76,7 +78,7 @@ type GroqChatBody = {
 
 type OllamaChatBody = {
 	model: string;
-	messages: { role: 'system' | 'user'; content: string }[];
+	messages: { role: ChatRole; content: string }[];
 	format?: 'json' | 'text' | JSONSchema;
 	stream?: boolean; // streaming responses
 	options?: {
@@ -142,7 +144,7 @@ type GroqChatResponse = {
 	model: string;
 	choices: Array<{
 		index: number;
-		message: { role: 'system' | 'user'; content: string };
+		message: { role: ChatRole; content: string };
 		finish_reason: string;
 	}>;
 	usage: {
@@ -160,7 +162,7 @@ type GroqChatResponse = {
 type OllamaChatResponse = {
 	model: string;
 	created_at: string;
-	message: { role: 'system' | 'user'; content: string };
+	message: { role: ChatRole; content: string };
 	done_reason: string;
 	total_duration?: number;
 	load_duration?: number;
@@ -190,6 +192,10 @@ export function ollamaToGroqResponse(ollama: OllamaChatResponse): GroqChatRespon
 		},
 		system_fingerprint: 'fp_local_ollama'
 	};
+}
+
+export function isAIProvider(value: string): value is AI_Provider {
+	return AI_PROVIDERS.includes(value as AI_Provider);
 }
 
 /*
